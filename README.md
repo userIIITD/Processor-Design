@@ -1,7 +1,7 @@
 # Processor-Design
 # Collaborators
 
-Bhumik
-Chaitanya Satsangi
-Hariom Kumar Bharti
-Lakshay
+Bhumik<br>
+Chaitanya Satsangi<br>
+Hariom Kumar Bharti<br>
+Lakshay<br>
