@@ -8,7 +8,7 @@ class RV32i:
         self.U=U
         self.Regiseter=Regiseter
         self.file=file
-    def main(self,file):
+    def main(self,R,I,S,B,J,U,Regiseter,file):
         with open(self.file,"w") as f:
             def R(self,R,Regiseter,file):
                 Ri=["add s2,s3,s4"]#self.R 
