@@ -13,32 +13,32 @@ Register={"zero": "00000", "ra":"00001", "sp": "00010", "gp": "00011", "tp": "00
 def sext(self, value, range):
     pass
 
-def R():
+def R(instruction, f):
     opcode = "0110011"
     funcs = {"add":["000","0000000"],"sub":["000","0100000"],"slt":["010","0000000"],"sltu":["011","0000000"],"xor":["100","0000000"],"srl":["101","0000000"],"or":["110","0000000"],"and":["111","0000000"],"sra":["101","0100000"]} #func3, func7
-    for i in R:
+    for i in instruction:
         name = i.split()[0]
         rd=Register[i.split()[1].split(",")[0]]
         rs1=Register[i.split()[1].split(",")[1]]
         rs2=Register[i.split()[1].split(",")[2]]
         f.write(f"{funcs[name][1]}{rs2}{rs1}{funcs[name][0]}{rd}{opcode}")
 
-def I():
+def I(instruction, f):
     pass
 
-def S():
+def S(instruction, f):
     opcode = "0100011"
     func3 = "010"
-    for i in S:
+    for i in instruction:
         imm = sext(int(i.split()[1].split(",")[1][0:i.split()[1].split(",")[1].find('(')]), 12) 
         rs1 = Register[i[i.find('(') + 1:i.find(')')]]
         rs2 = Register[i.split()[1].split(",")[0]]
         f.write(f"{imm[:7]}{rs2}{rs1}{func3}{imm[7:]}{opcode}")
 
-def B():
+def B(instruction, f):
     opcode = "1100011"
     func3 = {"beq" : "000", "bne" : "001", "blt" : "100"}
-    for i in B:
+    for i in instruction:
         name = i.split()[0]
         imm = sext(int(i.split()[1].split(",")[2]), 12)
         rs1 = Register[i.split()[1].split(",")[0]]
@@ -46,48 +46,8 @@ def B():
 
         f.write(f"{imm[:7]}{rs2}{rs1}{func3[name]}{imm[7:]}{opcode}")
 
-def J():
+def J(instruction, f):
     pass
 
-def U():
+def U(instruction, f):
     pass
-
-with open(file,"a") as f:
-    
-    if (I != []):
-        pass
-
-    if (S != []):
-        #sw s4,23(s4)
-
-    if (B != []):
-        #beq rs1,rs2,imm[12:1]
-        
-
-    # def R():
-    #     Ri=["add s2,s3,s4"]#R 
-    #     f3={"add":["000","0000000"],"sub":["000","0100000"],"slt":["010","0000000"],"sltu":["011","0000000"],"xor":["100","0000000"],"srl":["101","0000000"],"or":["110","0000000"],"and":["111","0000000"],"sra":["101","0100000"]}
-    #     opcode="0110011"
-    #     for i in Ri:
-    #         for j in f3:
-    #             if i.split()[0]==f3[j]:
-    #                 rd=Register[i.split()[1].split(",")[0]]
-    #                 rs1=Register[i.split()[1].split(",")[1]]
-    #                 rs2=Register[i.split()[1].split(",")[2]]
-    #                 print(f"{f3[j][1]}{rs2}{rs1}{f3[j][0]}{rd}{opcode}")
-    #                 f.write(f"{f3[j][1]}{rs2}{rs1}{f3[j][0]}{rd}{opcode}")
-    # def I():
-    #     Ii=I
-    # def S():
-    #     Si=S
-
-    # def B():
-    #     Bi=B
-
-    # def J():
-    #     Ji=J
-
-    # def U():
-    #     Ui=U
-
-
