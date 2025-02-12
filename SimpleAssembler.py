@@ -21,21 +21,11 @@ def I(instruction, f):
     f3={"lw":["010","0010011"],"addi":["000","0010011"],"jalr":["000","1100111"]} #[f3,opcode]
     for i in self.I:
         name=i.split()[0]
-        if name=="lw":
-            imm=sext(int(i.split()[1].split(",")[1].split("(")[0]),12)
-            rd=Regiseter[i.split()[1].split(",")[0]]
-            rs1=Regiseter[i.split()[1].split(",")[1].split("(")[1].rstrip(")")]
-            f.write(f"{imm}{rs1}{f3[name][0]}{rd}{f3[name][1]}")
-        elif name=="addi":
-            rd=Regiseter[i.split()[1].split(",")[0]]
-            rs1=Regiseter[i.split()[1].split(",")[1]]
-            imm=sext(int(i.split()[1].split(",")[2]))
-            f.write(f"{imm}{rs1}{f3[name][0]}{rd}{f3[name][1]}")
-        elif name=="jalr":
-            rd=Regiseter[i.split()[1].split(",")[0]]
-            rs1=Regiseter[i.split()[1].split(",")[1]]
-            offset=sext(int(i.split()[1].split(",")[2]))
-            f.write(f"{offset}{rs1}{f3[name][0]}{rd}{f3[name][1]}")
+        imm=sext(int(i.split()[1].split(",")[1].split("(")[0]),12)
+        rd=Regiseter[i.split()[1].split(",")[0]]
+        rs1=Regiseter[i.split()[1].split(",")[1].split("(")[1].rstrip(")")]
+        f.write(f"{imm}{rs1}{f3[name][0]}{rd}{f3[name][1]}")
+    
 
 def S(instruction, f):
     opcode = "0100011"
