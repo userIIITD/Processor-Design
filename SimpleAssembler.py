@@ -1,12 +1,12 @@
 class RV32i:
-    def __init__(self,R,I,S,B,J,U,Regiseter,file):
+    def __init__(self,R,I,S,B,J,U,Register,file):
         self.R=R
         self.I=I
         self.S=S
         self.B=B
         self.J=J
         self.U=U
-        self.Regiseter=Regiseter
+        self.Register=Register
         self.file=file
     def main(self):
         with open(self.file,"w") as f:
@@ -17,9 +17,9 @@ class RV32i:
                 for i in Ri:
                     for j in f3:
                         if i.split()[0]==f3[j]:
-                            rd=self.Regiseter[i.split()[1].split(",")[0]]
-                            rs1=self.Regiseter[i.split()[1].split(",")[1]]
-                            rs2=self.Regiseter[i.split()[1].split(",")[2]]
+                            rd=self.Register[i.split()[1].split(",")[0]]
+                            rs1=self.Register[i.split()[1].split(",")[1]]
+                            rs2=self.Register[i.split()[1].split(",")[2]]
                             print(f"{f3[j][1]}{rs2}{rs1}{f3[j][0]}{rd}{opcode}")
                             f.write(f"{f3[j][1]}{rs2}{rs1}{f3[j][0]}{rd}{opcode}")
             def I():
@@ -43,6 +43,6 @@ class RV32i:
             U()
 
 
-Regiseter={"zero": "00000", "ra":"00001", "sp": "00010", "gp": "00011", "tp": "00100", "t0": "00101", "t1": "00110", "t2": "00111", "s0": "01000", "fp": "01000", "s1": "01001", "a0": "01010", "a1": "01011", "a2": "01100", "a3": "01101", "a4": "01110", "a5": "01111", "a6": "10000", "a7": "10001", "s2": "10010", "s3": "10011", "s4": "10100", "s5": "10101", "s6": "10110", "s7": "10111", "s8": "11000", "s9": "11001", "s10": "11010", "s11": "11011", "t3": "11100", "t4": "11101", "t5": "11110", "t6": "11111"}
-Inst=RV32i(["add s2,s3,s4","sub s2,s2,s2"],["add s2,s3,s4"],["add s2,s3,s4"],["add s2,s3,s4"],["add s2,s3,s4"],["add s2,s3,s4"],Regiseter,"output.txt")
-Inst.main(["add s2,s3,s4","sub s2,s2,s2"],["add s2,s3,s4"],["add s2,s3,s4"],["add s2,s3,s4"],["add s2,s3,s4"],["add s2,s3,s4"],Regiseter,"output.txt")
+Register={"zero": "00000", "ra":"00001", "sp": "00010", "gp": "00011", "tp": "00100", "t0": "00101", "t1": "00110", "t2": "00111", "s0": "01000", "fp": "01000", "s1": "01001", "a0": "01010", "a1": "01011", "a2": "01100", "a3": "01101", "a4": "01110", "a5": "01111", "a6": "10000", "a7": "10001", "s2": "10010", "s3": "10011", "s4": "10100", "s5": "10101", "s6": "10110", "s7": "10111", "s8": "11000", "s9": "11001", "s10": "11010", "s11": "11011", "t3": "11100", "t4": "11101", "t5": "11110", "t6": "11111"}
+Inst=RV32i(["add s2,s3,s4","sub s2,s2,s2"],["add s2,s3,s4"],["add s2,s3,s4"],["add s2,s3,s4"],["add s2,s3,s4"],["add s2,s3,s4"],Register,"output.txt")
+Inst.main(["add s2,s3,s4","sub s2,s2,s2"],["add s2,s3,s4"],["add s2,s3,s4"],["add s2,s3,s4"],["add s2,s3,s4"],["add s2,s3,s4"],Register,"output.txt")
