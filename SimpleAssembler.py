@@ -18,7 +18,6 @@ def R(instruction, f):
         f.write(f"{funcs[name][1]}{rs2}{rs1}{funcs[name][0]}{rd}{opcode}")
 
 def I(instruction, f):
-    Ii=self.I
     f3={"lw":["010","0010011"],"addi":["000","0010011"],"jalr":["000","1100111"]} #[f3,opcode]
     for i in self.I:
         name=i.split()[0]
