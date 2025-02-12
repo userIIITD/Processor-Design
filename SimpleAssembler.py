@@ -1,11 +1,3 @@
-'''
-Note.
-dict = {'R' : [...], 'I' : [...], ...}
-Assemble = RV32i(dict['R'], dict['I'].....)
-
-Like this the instructions will be passed
-'''
-
 #waiting for Bhumik's code
 
 file = open('')
