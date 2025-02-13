@@ -1,4 +1,3 @@
-import re
 
 def read_file():
     file = open("file_name.txt", "r")
@@ -7,15 +6,10 @@ def read_file():
     
     instruction_list = []
     for i in temp:
-        x = re.split(r"\s+|,", i[0])
-        y = []
-        for j in x:
-            if j!="":
-                y.append(j)
+        type = i[0].split(" ")[0]
+        if type in type_of_inst:
+            instruction_list.append([i[0], type_of_inst[type])
 
-        if y!=[]:
-            instruction_list.append(y)
-            
     return instruction_list
 
 
