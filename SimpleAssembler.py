@@ -49,4 +49,9 @@ def B(instruction, f):
         f.write(f"{imm[:7]}{rs2}{rs1}{func3[name]}{imm[7:]}{opcode}")
 
 def J(instruction, f):
-    pass
+    opcode="1100011"
+    for i in instruction:
+        name=i.split()[0]
+        imm=sext(int(i.split()[1].split(',')[1]), 21)
+        rd=Register[i.split()[1].split(',')[0]]
+        f.write(imm[31:12:-1]+rd+opcode+'\n')
