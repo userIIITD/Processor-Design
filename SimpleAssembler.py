@@ -1,3 +1,5 @@
+import os
+
 type_of_inst = {"add" : "R", "sub" : "R", "slt" : "R", "srl" : "R", "or" : "R", "and" : "R", "addi" : "I", "lw" : "R", "jalr" : "I", "sw" : "S", "beq" : "B", "blt" : "B", "bne" : "B", "jal" : "J"}
 
 def read_file():
@@ -66,3 +68,15 @@ def J(instruction, f):
         imm=sext(int(i.split()[1].split(',')[1]), 21)
         rd=Register[i.split()[1].split(',')[0]]
         f.write(imm[31:12:-1]+rd+opcode+'\n')
+
+for i in read_file():
+    if i[1] == 'R':
+        R()
+    elif i[1] == 'I':
+        I()
+    elif i[1] == 'S':
+        S()
+    elif i[1] == 'B':
+        B()
+    elif i[1] == 'J':
+        J()
