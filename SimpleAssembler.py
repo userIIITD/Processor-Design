@@ -7,9 +7,9 @@ def read_file():
     
     instruction_list = []
     for i in temp:
-        type = i[0].split(" ")[0]
+        type = i.split(" ")[0]
         if type in type_of_inst:
-            instruction_list.append([i[0], type_of_inst[type])
+            instruction_list.append([i, type_of_inst[type]])
 
     return instruction_list
 
