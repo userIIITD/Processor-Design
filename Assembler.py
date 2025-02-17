@@ -4,17 +4,21 @@ def sext(num, bit = 12):
     return format(num & (2**bit - 1), f"0{bit}b")
 
 def R(i, f):
+    global error
     opcode = "0110011"
     funcs = {"add":["000","0000000"],"sub":["000","0100000"],"slt":["010","0000000"],"sltu":["011","0000000"],"srl":["101","0000000"],"or":["110","0000000"],"and":["111","0000000"]} #func3, func7
     name = i.split()[0]
-    rd=Register[i.split()[1].split(",")[0]]
-    rs1=Register[i.split()[1].split(",")[1]]
-    rs2=Register[i.split()[1].split(",")[2]]
-    f.write(f"{funcs[name][1]}{rs2}{rs1}{funcs[name][0]}{rd}{opcode}\n")
+    try:
+        rd=Register[i.split()[1].split(",")[0]]
+        rs1=Register[i.split()[1].split(",")[1]]
+        rs2=Register[i.split()[1].split(",")[2]]
+        f.write(f"{funcs[name][1]}{rs2}{rs1}{funcs[name][0]}{rd}{opcode}\n")
+    except:
+        print("Register name cannot be resolved")
+        error = True
 
-def I(i, f):
+def I(i, s):
     global error
-    f=open(s,"w")
     f3={"lw":["010","0000011"],"addi":["000","0010011"],"jalr":["000","1100111"]} #[f3,opcode]
     name=i.split()[0]
     if name == "lw": 
@@ -27,16 +31,13 @@ def I(i, f):
         try:
             if name == "lw": 
                 imm=sext(int(i.split()[1].split(",")[1].split("(")[0]),12)
+                rd=Register[i.split()[1].split(",")[0]]
+                rs1=Register[i.split()[1].split(",")[1].split("(")[1].rstrip(")")]
             else: 
                 imm = sext(int(i.split()[1].split(",")[2]))
-                rd=Register[i.split()[1].split(",")[0]]
-            if name == "lw": 
-                rs1=Register[i.split()[1].split(",")[1].split("(")[1].rstrip(")")]
-            else:  
+                rd=Register[i.split()[1].split(",")[0]]  
                 rs1=Register[i.split()[1].split(",")[1]]
-            
-            f.write(f"{imm}{rs1}{f3[name][0]}{rd}{f3[name][1]}\n")
-            f.close()
+            f.write(f"{imm}{rs1}{f3[name][0]}{rd}{f3[name][1]}")
         except:
             print("Register name cannot be resolved")
             error = True
