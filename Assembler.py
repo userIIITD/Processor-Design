@@ -1,9 +1,5 @@
 Register= {"zero": "00000", "ra":"00001", "sp": "00010", "gp": "00011", "tp": "00100", "t0": "00101", "t1": "00110", "t2": "00111", "s0": "01000", "fp": "01000", "s1": "01001", "a0": "01010", "a1": "01011", "a2": "01100", "a3": "01101", "a4": "01110", "a5": "01111", "a6": "10000", "a7": "10001", "s2": "10010", "s3": "10011", "s4": "10100", "s5": "10101", "s6": "10110", "s7": "10111", "s8": "11000", "s9": "11001", "s10": "11010", "s11": "11011", "t3": "11100", "t4": "11101", "t5": "11110", "t6": "11111"}
 
-def error(false_reg = 0, illegal_imm = 0):
-    if false_reg == 1: return "Register name cannot be resolved"
-    if illegal_imm == 1: return "Out of range immediate"
-
 def sext(num, bit = 12):
     return format(num & (2**bit - 1), f"0{bit}b")
 
@@ -86,7 +82,7 @@ def main():
     fout = open("out.txt", "a") #output text file
 
     error = False
-    
+
     for i in instruction_list:
         if error == False:
             if i[1] == 'R':
