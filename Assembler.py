@@ -21,7 +21,7 @@ def R(i, f):
 def I(i, s):
     global error
     f3={"lw":["010","0000011"],"addi":["000","0010011"],"jalr":["000","1100111"]} #[f3,opcode]
-    name=i.split()[0]
+    
     if name == "lw": 
             imm=int(i.split()[1].split(",")[1].split("(")[0])
     else: 
@@ -30,6 +30,7 @@ def I(i, s):
         print("Immediate out of bound")
     else:
         try:
+            name=i.split()[0]
             if name == "lw": 
                 imm=sext(int(i.split()[1].split(",")[1].split("(")[0]),12)
                 rd=Register[i.split()[1].split(",")[0]]
