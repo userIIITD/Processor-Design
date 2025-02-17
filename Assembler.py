@@ -7,8 +7,9 @@ def R(i, f):
     global error
     opcode = "0110011"
     funcs = {"add":["000","0000000"],"sub":["000","0100000"],"slt":["010","0000000"],"sltu":["011","0000000"],"srl":["101","0000000"],"or":["110","0000000"],"and":["111","0000000"]} #func3, func7
-    name = i.split()[0]
+    
     try:
+        name = i.split()[0]
         rd=Register[i.split()[1].split(",")[0]]
         rs1=Register[i.split()[1].split(",")[1]]
         rs2=Register[i.split()[1].split(",")[2]]
