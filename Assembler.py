@@ -1,5 +1,9 @@
 Register= {"zero": "00000", "ra":"00001", "sp": "00010", "gp": "00011", "tp": "00100", "t0": "00101", "t1": "00110", "t2": "00111", "s0": "01000", "fp": "01000", "s1": "01001", "a0": "01010", "a1": "01011", "a2": "01100", "a3": "01101", "a4": "01110", "a5": "01111", "a6": "10000", "a7": "10001", "s2": "10010", "s3": "10011", "s4": "10100", "s5": "10101", "s6": "10110", "s7": "10111", "s8": "11000", "s9": "11001", "s10": "11010", "s11": "11011", "t3": "11100", "t4": "11101", "t5": "11110", "t6": "11111"}
 
+def error(false_reg = 0, illegal_imm = 0):
+    if false_reg == 1: return "Register name cannot be resolved"
+    if illegal_imm == 1: return "Out of range immediate"
+
 def sext(num, bit = 12):
     return format(num & (2**bit - 1), f"0{bit}b")
 
@@ -24,21 +28,37 @@ def I(i, f):
     
 
 def S(i, f):
+    global error
     opcode = "0100011"
     func3 = "010"
-    imm = sext(int(i.split()[1].split(",")[1][0:i.split()[1].split(",")[1].find('(')]), 12) 
-    rs1 = Register[i[i.find('(') + 1:i.find(')')]]
-    rs2 = Register[i.split()[1].split(",")[0]]
-    f.write(f"{imm[:7]}{rs2}{rs1}{func3}{imm[7:]}{opcode}\n")
+    imm = sext(int(i.split()[1].split(",")[1][0:i.split()[1].split(",")[1].find('(')]), 12)
+    if imm not in range(-2048, 2048):
+        print("Immediate out of bound")
+        error = True
+    try: 
+        rs1 = Register[i[i.find('(') + 1:i.find(')')]]
+        rs2 = Register[i.split()[1].split(",")[0]]
+        f.write(f"{imm[:7]}{rs2}{rs1}{func3}{imm[7:]}{opcode}\n")
+    except:
+        print("Register name cannot be resolved")
+        error = True
 
 def B(i, f):
+    global error
     opcode = "1100011"
     func3 = {"beq" : "000", "bne" : "001", "blt" : "100"}
     name = i.split()[0]
     imm = sext(int(i.split()[1].split(",")[2]), 12)
-    rs1 = Register[i.split()[1].split(",")[0]]
-    rs2 = Register[i.split()[1].split(",")[1]]
-    f.write(f"{imm[:7]}{rs2}{rs1}{func3[name]}{imm[7:]}{opcode}\n")
+    if imm not in range(-2048, 2048):
+        print("Immediate out of bound")
+        error = True
+    try:
+        rs1 = Register[i.split()[1].split(",")[0]]
+        rs2 = Register[i.split()[1].split(",")[1]]
+        f.write(f"{imm[:7]}{rs2}{rs1}{func3[name]}{imm[7:]}{opcode}\n")
+    except:
+        print("Register name cannot be resolved")
+        error = True
 
 def J(i, f):
     opcode="1100011"
@@ -65,16 +85,22 @@ def main():
 
     fout = open("out.txt", "a") #output text file
 
+    error = False
+    
     for i in instruction_list:
-        if i[1] == 'R':
-            R(i[0], fout)
-        elif i[1] == 'I':
-            I(i[0], fout)
-        elif i[1] == 'S':
-            S(i[0], fout)
-        elif i[1] == 'B':
-            B(i[0], fout)
-        elif i[1] == 'J':
-            J(i[0], fout)
+        if error == False:
+            if i[1] == 'R':
+                R(i[0], fout)
+            elif i[1] == 'I':
+                I(i[0], fout)
+            elif i[1] == 'S':
+                S(i[0], fout)
+            elif i[1] == 'B':
+                B(i[0], fout)
+            elif i[1] == 'J':
+                J(i[0], fout)
+        else:
+            error = False
+            break
 
     fout.close()
