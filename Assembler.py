@@ -5,7 +5,7 @@ def sext(num, bit = 12):
 
 def R(i, f):
     opcode = "0110011"
-    funcs = {"add":["000","0000000"],"sub":["000","0100000"],"slt":["010","0000000"],"sltu":["011","0000000"],"xor":["100","0000000"],"srl":["101","0000000"],"or":["110","0000000"],"and":["111","0000000"],"sra":["101","0100000"]} #func3, func7
+    funcs = {"add":["000","0000000"],"sub":["000","0100000"],"slt":["010","0000000"],"sltu":["011","0000000"],"srl":["101","0000000"],"or":["110","0000000"],"and":["111","0000000"]} #func3, func7
     name = i.split()[0]
     rd=Register[i.split()[1].split(",")[0]]
     rs1=Register[i.split()[1].split(",")[1]]
@@ -13,48 +13,71 @@ def R(i, f):
     f.write(f"{funcs[name][1]}{rs2}{rs1}{funcs[name][0]}{rd}{opcode}\n")
 
 def I(i, f):
+    global error
+    f=open(s,"w")
     f3={"lw":["010","0000011"],"addi":["000","0010011"],"jalr":["000","1100111"]} #[f3,opcode]
     name=i.split()[0]
-    if name == "lw": imm=sext(int(i.split()[1].split(",")[1].split("(")[0]),12)
-    else: imm = sext(int(i.split()[1].split(",")[2]))
-    rd=Register[i.split()[1].split(",")[0]]
-    if name == "lw": rs1=Register[i.split()[1].split(",")[1].split("(")[1].rstrip(")")]
-    else:  rs1=Register[i.split()[1].split(",")[1]]
-    f.write(f"{imm}{rs1}{f3[name][0]}{rd}{f3[name][1]}\n")
+    if name == "lw": 
+            imm=int(i.split()[1].split(",")[1].split("(")[0])
+    else: 
+            imm =int(i.split()[1].split(",")[2])
+    if imm not in range(-2048, 2048):
+        print("Immediate out of bound")
+    else:
+        try:
+            if name == "lw": 
+                imm=sext(int(i.split()[1].split(",")[1].split("(")[0]),12)
+            else: 
+                imm = sext(int(i.split()[1].split(",")[2]))
+                rd=Register[i.split()[1].split(",")[0]]
+            if name == "lw": 
+                rs1=Register[i.split()[1].split(",")[1].split("(")[1].rstrip(")")]
+            else:  
+                rs1=Register[i.split()[1].split(",")[1]]
+            
+            f.write(f"{imm}{rs1}{f3[name][0]}{rd}{f3[name][1]}\n")
+            f.close()
+        except:
+            print("Register name cannot be resolved")
+            error = True
     
 
 def S(i, f):
     global error
     opcode = "0100011"
     func3 = "010"
-    imm = sext(int(i.split()[1].split(",")[1][0:i.split()[1].split(",")[1].find('(')]), 12)
+    imm = int(i.split()[1].split(",")[1][0:i.split()[1].split(",")[1].find('(')])
     if imm not in range(-2048, 2048):
         print("Immediate out of bound")
         error = True
-    try: 
-        rs1 = Register[i[i.find('(') + 1:i.find(')')]]
-        rs2 = Register[i.split()[1].split(",")[0]]
-        f.write(f"{imm[:7]}{rs2}{rs1}{func3}{imm[7:]}{opcode}\n")
-    except:
-        print("Register name cannot be resolved")
-        error = True
+    else:
+        try: 
+            imm = sext(int(i.split()[1].split(",")[1][0:i.split()[1].split(",")[1].find('(')]), 12)
+            rs1 = Register[i[i.find('(') + 1:i.find(')')]]
+            rs2 = Register[i.split()[1].split(",")[0]]
+            f.write(f"{imm[:7]}{rs2}{rs1}{func3}{imm[7:]}{opcode}\n")
+        except:
+            print("Register name cannot be resolved")
+            error = True
 
 def B(i, f):
     global error
     opcode = "1100011"
     func3 = {"beq" : "000", "bne" : "001", "blt" : "100"}
     name = i.split()[0]
-    imm = sext(int(i.split()[1].split(",")[2]), 12)
+    imm = int(i.split()[1].split(",")[2])
     if imm not in range(-2048, 2048):
         print("Immediate out of bound")
         error = True
-    try:
-        rs1 = Register[i.split()[1].split(",")[0]]
-        rs2 = Register[i.split()[1].split(",")[1]]
-        f.write(f"{imm[:7]}{rs2}{rs1}{func3[name]}{imm[7:]}{opcode}\n")
-    except:
-        print("Register name cannot be resolved")
-        error = True
+    else:
+        try:
+            imm = sext(int(i.split()[1].split(",")[2]), 12)
+            rs1 = Register[i.split()[1].split(",")[0]]
+            rs2 = Register[i.split()[1].split(",")[1]]
+            f.write(f"{imm[:7]}{rs2}{rs1}{func3[name]}{imm[7:]}{opcode}\n")
+        except:
+            print("Register name cannot be resolved")
+            error = True
 
 def J(i, f):
     opcode="1100011"
