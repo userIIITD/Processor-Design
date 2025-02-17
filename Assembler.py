@@ -60,6 +60,8 @@ def main():
         type = i.split(" ")[0]
         if type in type_of_inst:
             instruction_list.append([i, type_of_inst[type]])
+        else:
+            print(f"Error. No {type} instruction.")
 
     fout = open("out.txt", "a") #output text file
 
