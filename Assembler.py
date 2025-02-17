@@ -1,21 +1,3 @@
-import os
-
-type_of_inst = {"add" : "R", "sub" : "R", "slt" : "R", "srl" : "R", "or" : "R", "and" : "R", "addi" : "I", "lw" : "I", "jalr" : "I", "sw" : "S", "beq" : "B", "blt" : "B", "bne" : "B", "jal" : "J"}
-
-def read_file():
-    file = open("Ex_test_2.txt", "r")
-    temp = file.readlines()
-    file.close()
-    
-    instruction_list = []
-    for i in temp:
-        type = i.split(" ")[0]
-        if type in type_of_inst:
-            instruction_list.append([i, type_of_inst[type]])
-
-    return instruction_list
-
-
 Register= {"zero": "00000", "ra":"00001", "sp": "00010", "gp": "00011", "tp": "00100", "t0": "00101", "t1": "00110", "t2": "00111", "s0": "01000", "fp": "01000", "s1": "01001", "a0": "01010", "a1": "01011", "a2": "01100", "a3": "01101", "a4": "01110", "a5": "01111", "a6": "10000", "a7": "10001", "s2": "10010", "s3": "10011", "s4": "10100", "s5": "10101", "s6": "10110", "s7": "10111", "s8": "11000", "s9": "11001", "s10": "11010", "s11": "11011", "t3": "11100", "t4": "11101", "t5": "11110", "t6": "11111"}
 
 def sext(num, bit = 12):
@@ -65,19 +47,32 @@ def J(i, f):
     rd=Register[i.split()[1].split(',')[0]]
     f.write(imm[31:12:-1]+rd+opcode+'\n')
 
-f = open("out.txt", "a")
-list_of_inst = read_file()
+type_of_inst = {"add" : "R", "sub" : "R", "slt" : "R", "srl" : "R", "or" : "R", "and" : "R", "addi" : "I", "lw" : "I", "jalr" : "I", "sw" : "S", "beq" : "B", "blt" : "B", "bne" : "B", "jal" : "J"}
 
-for i in list_of_inst:
-    if i[1] == 'R':
-        R(i[0], f)
-    elif i[1] == 'I':
-        I(i[0], f)
-    elif i[1] == 'S':
-        S(i[0], f)
-    elif i[1] == 'B':
-        B(i[0], f)
-    elif i[1] == 'J':
-        J(i[0], f)
+def main():
+    import os
+    fin = open("Ex_test_2.txt", "r") #input text file
+    temp = fin.readlines()
+    fin.close()
+    
+    instruction_list = []
+    for i in temp:
+        type = i.split(" ")[0]
+        if type in type_of_inst:
+            instruction_list.append([i, type_of_inst[type]])
 
-f.close()
+    fout = open("out.txt", "a") #output text file
+
+    for i in instruction_list:
+        if i[1] == 'R':
+            R(i[0], fout)
+        elif i[1] == 'I':
+            I(i[0], fout)
+        elif i[1] == 'S':
+            S(i[0], fout)
+        elif i[1] == 'B':
+            B(i[0], fout)
+        elif i[1] == 'J':
+            J(i[0], fout)
+
+    fout.close()
