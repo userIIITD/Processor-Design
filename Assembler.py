@@ -81,11 +81,20 @@ def B(i, f):
             error = True
 
 def J(i, f):
+    global error
     opcode="1100011"
     name=i.split()[0]
     imm=sext(int(i.split()[1].split(',')[1]), 21)
-    rd=Register[i.split()[1].split(',')[0]]
-    f.write(imm[31:12:-1]+rd+opcode+'\n')
+    if imm not in range(-2048, 2048):
+        print("Immediate out of bound")
+        error = True
+    else:
+        try:
+            rd=Register[i.split()[1].split(',')[0]]
+            f.write(imm[31:12:-1]+rd+opcode+'\n')
+        except:
+            print("Register name cannot be resolved")
+            error = True
 
 type_of_inst = {"add" : "R", "sub" : "R", "slt" : "R", "srl" : "R", "or" : "R", "and" : "R", "addi" : "I", "lw" : "I", "jalr" : "I", "sw" : "S", "beq" : "B", "blt" : "B", "bne" : "B", "jal" : "J"}
 
