@@ -61,18 +61,25 @@ def S(i, f):
             print("Register name cannot be resolved")
             error = True
 
-def B(i, f):
+def B(i, f, labels, pc):
     global error
     opcode = "1100011"
     func3 = {"beq" : "000", "bne" : "001", "blt" : "100"}
+    # print(i)
     name = i.split()[0]
-    imm = int(i.split()[1].split(",")[2])
+    # imm = int(i.split()[1].split(",")[2])
+    try:
+        imm = int(i.split()[1].split(",")[2])
+    except:
+        target = pc + 4
+        imm = (target - labels[i.split()[1].split(",")[2]] // 2)
+
     if imm not in range(-2048, 2048):
         print("Immediate out of bound")
         error = True
     else:
         try:
-            imm = sext(int(i.split()[1].split(",")[2]), 12)
+            imm = sext(imm, 12)
             rs1 = Register[i.split()[1].split(",")[0]]
             rs2 = Register[i.split()[1].split(",")[1]]
             f.write(f"{imm[:7]}{rs2}{rs1}{func3[name]}{imm[7:]}{opcode}\n")
@@ -99,28 +106,40 @@ def J(i, f):
 
 type_of_inst = {"add" : "R", "sub" : "R", "slt" : "R", "srl" : "R", "or" : "R", "and" : "R", "addi" : "I", "lw" : "I", "jalr" : "I", "sw" : "S", "beq" : "B", "blt" : "B", "bne" : "B", "jal" : "J"}
 
-def main():
-    import os
-    fin = open("Ex_test_2.txt", "r") #input text file
+def execute(file):
+    fin = open(f"{file}", "r") #input text file
     temp = fin.readlines()
     fin.close()
-    
     instruction_list = []
-    for i in temp:
+    labelS = {} #for B-Type instruction
+    pc = 0
+    for i in temp:  
         if ':' in i:
             type = i[i.index(':')+2:].split()[0]
+            label = i[0:i.index(':')]
+            labelS[label] = pc
         else:
             type = i.split(" ")[0]
         if type in type_of_inst:
-            instruction_list.append([i, type_of_inst[type]])
+            if ':' not in i:
+                instruction_list.append([i, type_of_inst[type]])
+            else:
+                instruction_list.append([i[i.index(':')+2:], type_of_inst[type]])
         else:
-            print(f"Error. No {type} instruction.")
+            print(f"Error:")
+            print(f"No {type} type instruction.")
+        pc += 4
+    # print(instruction_list)
 
-    fout = open("out.txt", "a") #output text file
+    os.chdir("..")
+    os.chdir("user_bin_s")
+    fout = open(f"{file}", "a")
+    # fout = open(f"{f_output}", "a") #output text file
 
     error = False
-
+    # print(labelS)
     for i in instruction_list:
+        pc = 0
         if error == False:
             if i[1] == 'R':
                 R(i[0], fout)
@@ -129,11 +148,30 @@ def main():
             elif i[1] == 'S':
                 S(i[0], fout)
             elif i[1] == 'B':
-                B(i[0], fout)
-            elif i[1] == 'J':
-                J(i[0], fout)
+                B(i[0], fout, labelS, pc)
+            # elif i[1] == 'J':
+            #     J(i[0], fout)
+            pc += 4
         else:
             error = False
             break
 
     fout.close()
+
+import os
+
+#Executes files simpleBin folder
+print(os.getcwd())
+os.chdir("..")
+folder = "automatedTesting/tests/assembly/simpleBin"
+binary_folder = "automatedTesting/tests/assembly/user_bin_s"
+print(os.getcwd())
+os.chdir(folder)
+for file in os.listdir():
+    # file_path = os.path.join(folder, files)
+    execute(file)
+    os.chdir("..")
+    os.chdir("simpleBin")
+
+# os.startfile("automatedTesting/tests/assembly/hardBin")
+# os.startfile("automatedTesting/tests/assembly/errorGen")
