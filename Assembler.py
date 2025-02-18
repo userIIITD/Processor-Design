@@ -79,7 +79,7 @@ def B(i, f, labels, pc):
         error = True
     else:
         try:
-            imm = sext(imm, 12)
+            imm = sext(imm, 13)[:12] #removing the '0' in the LSB
             rs1 = Register[i.split()[1].split(",")[0]]
             rs2 = Register[i.split()[1].split(",")[1]]
             f.write(f"{imm[:7]}{rs2}{rs1}{func3[name]}{imm[7:]}{opcode}\n")
@@ -87,17 +87,21 @@ def B(i, f, labels, pc):
             print("Register name cannot be resolved")
             error = True
 
-def J(i, f):
+def J(i, f, labels, pc):
     global error
     opcode="1100011"
     name=i.split()[0]
-    imm=int(i.split()[1].split(',')[1])
+    try:
+        imm=int(i.split()[1].split(',')[1])
+    except:
+        imm = int(labels[i.split()[1].split(",")[1]] - pc)
+
     if imm not in range(-2048, 2048):
         print("Immediate out of bound")
         error = True
     else:
         try:
-            imm=sext(int(i.split()[1].split(',')[1]), 21)
+            imm=sext(imm, 20)
             rd=Register[i.split()[1].split(',')[0]]
             f.write(imm[31:12:-1]+rd+opcode+'\n')
         except:
@@ -128,13 +132,12 @@ def execute(file):
         else:
             print(f"Error:")
             print(f"No {type} type instruction.")
+            print(i)
         pc += 4
     # print(instruction_list)
-
     os.chdir("..")
     os.chdir("user_bin_s")
     fout = open(f"{file}", "a")
-    # fout = open(f"{f_output}", "a") #output text file
 
     error = False
     # print(labelS)
@@ -149,8 +152,8 @@ def execute(file):
                 S(i[0], fout)
             elif i[1] == 'B':
                 B(i[0], fout, labelS, pc)
-            # elif i[1] == 'J':
-            #     J(i[0], fout)
+            elif i[1] == 'J':
+                J(i[0], fout, labelS, pc)
             pc += 4
         else:
             error = False
@@ -161,17 +164,17 @@ def execute(file):
 import os
 
 #Executes files simpleBin folder
-print(os.getcwd())
 os.chdir("..")
 folder = "automatedTesting/tests/assembly/simpleBin"
 binary_folder = "automatedTesting/tests/assembly/user_bin_s"
-print(os.getcwd())
 os.chdir(folder)
 for file in os.listdir():
-    # file_path = os.path.join(folder, files)
     execute(file)
     os.chdir("..")
     os.chdir("simpleBin")
 
+
+print(os.getcwd())
+#Executes files hardBin folder
 # os.startfile("automatedTesting/tests/assembly/hardBin")
 # os.startfile("automatedTesting/tests/assembly/errorGen")
