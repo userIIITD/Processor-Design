@@ -84,12 +84,13 @@ def J(i, f):
     global error
     opcode="1100011"
     name=i.split()[0]
-    imm=sext(int(i.split()[1].split(',')[1]), 21)
+    imm=int(i.split()[1].split(',')[1])
     if imm not in range(-2048, 2048):
         print("Immediate out of bound")
         error = True
     else:
         try:
+            imm=sext(int(i.split()[1].split(',')[1]), 21)
             rd=Register[i.split()[1].split(',')[0]]
             f.write(imm[31:12:-1]+rd+opcode+'\n')
         except:
