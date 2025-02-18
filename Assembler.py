@@ -16,6 +16,7 @@ def R(i, f):
     except:
         print("Register name cannot be resolved")
         error = True
+
 def I(i, f):
     global error
     f3={"lw":["010","0000011"],"addi":["000","0010011"],"jalr":["000","1100111"]} #[f3,opcode]
@@ -96,7 +97,10 @@ def main():
     
     instruction_list = []
     for i in temp:
-        type = i.split(" ")[0]
+        if ':' in i:
+            type = i[i.index(':')+2:].split()[0]
+        else:
+            type = i.split(" ")[0]
         if type in type_of_inst:
             instruction_list.append([i, type_of_inst[type]])
         else:
