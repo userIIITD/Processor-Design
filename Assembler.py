@@ -3,7 +3,7 @@ Register= {"zero": "00000", "ra":"00001", "sp": "00010", "gp": "00011", "tp": "0
 def sext(num, bit = 12):
     return format(num & (2**bit - 1), f"0{bit}b")
 
-def R(i, f):
+def R(i, f, pc):
     global error
     opcode = "0110011"
     funcs = {"add":["000","0000000"],"sub":["000","0100000"],"slt":["010","0000000"],"sltu":["011","0000000"],"srl":["101","0000000"],"or":["110","0000000"],"and":["111","0000000"]} #func3, func7
@@ -14,10 +14,11 @@ def R(i, f):
         rs2=Register[i.split()[1].split(",")[2]]
         f.write(f"{funcs[name][1]}{rs2}{rs1}{funcs[name][0]}{rd}{opcode}\n")
     except:
-        print("Register name cannot be resolved")
+        print("Error:")
+        print(f"Register name cannot be resolved at PC = {pc}")
         error = True
 
-def I(i, f):
+def I(i, f, pc):
     global error
     f3={"lw":["010","0000011"],"addi":["000","0010011"],"jalr":["000","1100111"]} #[f3,opcode]
     try:
@@ -40,10 +41,11 @@ def I(i, f):
                 rs1=Register[i.split()[1].split(",")[1]]
             f.write(f"{imm}{rs1}{f3[name][0]}{rd}{f3[name][1]}\n")
     except:
-        print("Register name cannot be resolved")
+        print("Error:")
+        print(f"Register name cannot be resolved at PC = {pc}")
         error = True
 
-def S(i, f):
+def S(i, f, pc):
     global error
     opcode = "0100011"
     func3 = "010"
@@ -58,16 +60,15 @@ def S(i, f):
             rs2 = Register[i.split()[1].split(",")[0]]
             f.write(f"{imm[:7]}{rs2}{rs1}{func3}{imm[7:]}{opcode}\n")
         except:
-            print("Register name cannot be resolved")
+            print("Error:")
+            print(f"Register name cannot be resolved at PC = {pc}")
             error = True
 
 def B(i, f, labels, pc):
     global error
     opcode = "1100011"
     func3 = {"beq" : "000", "bne" : "001", "blt" : "100"}
-    # print(i)
     name = i.split()[0]
-    # imm = int(i.split()[1].split(",")[2])
     try:
         imm = int(i.split()[1].split(",")[2])
     except:
@@ -84,13 +85,14 @@ def B(i, f, labels, pc):
             rs2 = Register[i.split()[1].split(",")[1]]
             f.write(f"{imm[:7]}{rs2}{rs1}{func3[name]}{imm[7:]}{opcode}\n")
         except:
-            print("Register name cannot be resolved")
+            print("Error:")
+            print(f"Register name cannot be resolved at PC = {pc}")
             error = True
 
 def J(i, f, labels, pc):
     global error
     opcode="1100011"
-    name=i.split()[0]
+
     try:
         imm=int(i.split()[1].split(',')[1])
     except:
@@ -105,12 +107,13 @@ def J(i, f, labels, pc):
             rd=Register[i.split()[1].split(',')[0]]
             f.write(imm[31:12:-1]+rd+opcode+'\n')
         except:
-            print("Register name cannot be resolved")
+            print("Error:")
+            print(f"Register name cannot be resolved at PC = {pc}")
             error = True
 
 type_of_inst = {"add" : "R", "sub" : "R", "slt" : "R", "srl" : "R", "or" : "R", "and" : "R", "addi" : "I", "lw" : "I", "jalr" : "I", "sw" : "S", "beq" : "B", "blt" : "B", "bne" : "B", "jal" : "J"}
 
-def execute(file):
+def execute(file, folder):
     fin = open(f"{file}", "r") #input text file
     temp = fin.readlines()
     fin.close()
@@ -132,49 +135,70 @@ def execute(file):
         else:
             print(f"Error:")
             print(f"No {type} type instruction.")
-            print(i)
+            return
         pc += 4
-    # print(instruction_list)
+    
+    if folder == "errorGen":
+        pass
     os.chdir("..")
-    os.chdir("user_bin_s")
-    fout = open(f"{file}", "a")
-
+    os.chdir(f"{folder}")
+    if folder == "tempfolder":
+        fout = open(os.devnull, 'a')
+    else:
+        fout = open(f"{file}", 'a')
     error = False
-    # print(labelS)
+
+    pc = 0
     for i in instruction_list:
-        pc = 0
         if error == False:
-            if i[1] == 'R':
-                R(i[0], fout)
-            elif i[1] == 'I':
-                I(i[0], fout)
-            elif i[1] == 'S':
-                S(i[0], fout)
-            elif i[1] == 'B':
-                B(i[0], fout, labelS, pc)
-            elif i[1] == 'J':
-                J(i[0], fout, labelS, pc)
+            try:
+                if i[1] == 'R':
+                    R(i[0], fout, pc)
+                elif i[1] == 'I':
+                    I(i[0], fout, pc)
+                elif i[1] == 'S':
+                    S(i[0], fout, pc)
+                elif i[1] == 'B':
+                    B(i[0], fout, labelS, pc)
+                elif i[1] == 'J':
+                    J(i[0], fout, labelS, pc)
+            except:
+                print("Error:")
+                print(f"Invalid Instruction at PC = {pc}")
             pc += 4
         else:
             error = False
-            break
-
     fout.close()
 
+#---------------------------------------------------------------------------------------------
 import os
 
 #Executes files simpleBin folder
 os.chdir("..")
 folder = "automatedTesting/tests/assembly/simpleBin"
-binary_folder = "automatedTesting/tests/assembly/user_bin_s"
 os.chdir(folder)
 for file in os.listdir():
-    execute(file)
+    execute(file, "user_bin_s")
     os.chdir("..")
     os.chdir("simpleBin")
 
-
-print(os.getcwd())
 #Executes files hardBin folder
-# os.startfile("automatedTesting/tests/assembly/hardBin")
-# os.startfile("automatedTesting/tests/assembly/errorGen")
+os.chdir("..")
+folder = "hardBin"
+os.chdir(folder)
+for file in os.listdir():
+    execute(file, "user_bin_h")
+    os.chdir("..")
+    os.chdir("hardBin")
+
+#Executes files errorGen folder
+os.chdir("..")
+os.mkdir("tempfolder")
+folder = "errorGen"
+os.chdir(folder)
+for file in os.listdir():
+    execute(file, "tempfolder")
+    os.chdir("..")
+    os.chdir("hardBin")
+os.chdir("..")
+os.rmdir("tempfolder")
