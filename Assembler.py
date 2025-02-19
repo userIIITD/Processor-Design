@@ -105,7 +105,7 @@ def J(i, f, labels, pc):
         try:
             imm=sext(imm, 20)
             rd=Register[i.split()[1].split(',')[0]]
-            f.write(imm[20]+imm[10:0:-1]+imm[11]+imm[19:11:-1]+rd+opcode+'\n')
+            f.write(imm[19]+imm[9:0:-1]+imm[10]+imm[18:10:-1]+rd+opcode+'\n')
         except:
             print("Error:")
             print(f"Register name cannot be resolved at PC = {pc}")
