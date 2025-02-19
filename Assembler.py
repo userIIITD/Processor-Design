@@ -175,6 +175,7 @@ def execute(file, folder):
 
 #---------------------------------------------------------------------------------------------
 import os
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 #Executes files simpleBin folder
 os.chdir("..")
