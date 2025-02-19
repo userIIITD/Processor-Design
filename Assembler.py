@@ -91,7 +91,7 @@ def B(i, f, labels, pc):
 
 def J(i, f, labels, pc):
     global error
-    opcode="1100011"
+    opcode="1101111"
 
     try:
         imm=int(i.split()[1].split(',')[1])
@@ -105,11 +105,14 @@ def J(i, f, labels, pc):
         try:
             imm=sext(imm, 20)
             rd=Register[i.split()[1].split(',')[0]]
-            f.write(imm[19]+imm[9:0:-1]+imm[10]+imm[18:10:-1]+rd+opcode+'\n')
+            f.write(imm[0]+imm[9:19]+imm[11]+imm[0:8]+rd+opcode+'\n')
+            print(imm)
         except:
             print("Error:")
-            print(f"Register name cannot be resolved at PC = {pc}")
+            print(f"Register name cannot be resolved at line {pc//4}")
+            print(f"Location simpleBin/{f.name}")
             error = True
+    
 
 type_of_inst = {"add" : "R", "sub" : "R", "slt" : "R", "srl" : "R", "or" : "R", "and" : "R", "addi" : "I", "lw" : "I", "jalr" : "I", "sw" : "S", "beq" : "B", "blt" : "B", "bne" : "B", "jal" : "J"}
 
