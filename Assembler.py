@@ -15,7 +15,7 @@ def R(i, f, pc):
         f.write(f"{funcs[name][1]}{rs2}{rs1}{funcs[name][0]}{rd}{opcode}\n")
     except:
         print("Error:")
-        print(f"Register name cannot be resolved at PC = {pc}")
+        print(f"Register name cannot be resolved at line {pc//4}")
         error = True
 
 def I(i, f, pc):
@@ -42,7 +42,7 @@ def I(i, f, pc):
             f.write(f"{imm}{rs1}{f3[name][0]}{rd}{f3[name][1]}\n")
     except:
         print("Error:")
-        print(f"Register name cannot be resolved at PC = {pc}")
+        print(f"Register name cannot be resolved at line {pc//4}")
         error = True
 
 def S(i, f, pc):
@@ -61,7 +61,7 @@ def S(i, f, pc):
             f.write(f"{imm[:7]}{rs2}{rs1}{func3}{imm[7:]}{opcode}\n")
         except:
             print("Error:")
-            print(f"Register name cannot be resolved at PC = {pc}")
+            print(f"Register name cannot be resolved at line {pc//4}")
             error = True
 
 def B(i, f, labels, pc):
@@ -87,7 +87,7 @@ def B(i, f, labels, pc):
 
         except:
             print("Error:")
-            print(f"Register name cannot be resolved at PC = {pc}")
+            print(f"Register name cannot be resolved at line {pc//4}")
             error = True
 
 def J(i, f, labels, pc):
@@ -110,7 +110,6 @@ def J(i, f, labels, pc):
         except:
             print("Error:")
             print(f"Register name cannot be resolved at line {pc//4}")
-            print(f"Location simpleBin/{f.name}")
             error = True
     
 
@@ -125,16 +124,23 @@ def execute(file, folder):
     pc = 0
     for i in temp:  
         if ':' in i:
-            type = i[i.index(':')+2:].split()[0]
-            label = i[0:i.index(':')]
-            labelS[label] = pc
+            if i[i.index(":")+1] == ' ':
+                k = i[i.index(':')+2:]
+                type = k.split()[0]
+                label = i[0:i.index(':')]
+                labelS[label] = pc
+            else:
+                k = i[i.index(':')+1:]
+                type = k.split()[0]
+                label = i[0:i.index(':')]
+                labelS[label] = pc
         else:
             type = i.split(" ")[0]
         if type in type_of_inst:
             if ':' not in i:
                 instruction_list.append([i, type_of_inst[type]])
             else:
-                instruction_list.append([i[i.index(':')+2:], type_of_inst[type]])
+                instruction_list.append([k, type_of_inst[type]])
         else:
             print(f"Error:")
             print(f"No {type} type instruction.")
@@ -167,7 +173,7 @@ def execute(file, folder):
                     J(i[0], fout, labelS, pc)
             except:
                 print("Error:")
-                print(f"Invalid Instruction at PC = {pc}")
+                print(f"Invalid Instruction at line {pc//4}")
             pc += 4
         else:
             error = False
