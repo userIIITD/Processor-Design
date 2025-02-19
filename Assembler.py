@@ -106,7 +106,6 @@ def J(i, f, labels, pc):
             imm=sext(imm, 20)
             rd=Register[i.split()[1].split(',')[0]]
             f.write(imm[0]+imm[9:19]+imm[11]+imm[0:8]+rd+opcode+'\n')
-            print(imm)
         except:
             print("Error:")
             print(f"Register name cannot be resolved at line {pc//4}")
