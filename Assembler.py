@@ -72,18 +72,19 @@ def B(i, f, labels, pc):
     try:
         imm = int(i.split()[1].split(",")[2])
     except:
-        target = pc + 4
-        imm = (target - labels[i.split()[1].split(",")[2]] // 2)
+        target = pc
+        imm = (labels[i.split()[1].split(",")[2]] - target)
 
     if imm not in range(-2048, 2048):
         print("Immediate out of bound")
         error = True
     else:
         try:
-            imm = sext(imm, 13)[:12] #removing the '0' in the LSB
+            imm = sext(imm, 12)
             rs1 = Register[i.split()[1].split(",")[0]]
             rs2 = Register[i.split()[1].split(",")[1]]
-            f.write(f"{imm[:7]}{rs2}{rs1}{func3[name]}{imm[7:]}{opcode}\n")
+            f.write(f"{imm[0]}{imm[1:7]}{rs2}{rs1}{func3[name]}{imm[7:11]}{imm[2]}{opcode}\n")
+
         except:
             print("Error:")
             print(f"Register name cannot be resolved at PC = {pc}")
@@ -120,7 +121,7 @@ def execute(file, folder):
     temp = fin.readlines()
     fin.close()
     instruction_list = []
-    labelS = {} #for B-Type instruction
+    labelS = {}
     pc = 0
     for i in temp:  
         if ':' in i:
