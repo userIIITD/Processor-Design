@@ -119,65 +119,74 @@ def execute(file, folder):
     fin = open(f"{file}", "r") #input text file
     temp = fin.readlines()
     fin.close()
+    # print(temp[-1])
+    virtual_halt = 'beq zero,zero,0'
     instruction_list = []
     labelS = {}
     pc = 0
-    for i in temp:  
-        if ':' in i:
-            if i[i.index(":")+1] == ' ':
-                k = i[i.index(':')+2:]
-                type = k.split()[0]
-                label = i[0:i.index(':')]
-                labelS[label] = pc
+    if temp[-1] == virtual_halt or temp[-1] == virtual_halt+'\n':
+        for i in temp:  
+            if ':' in i:
+                if i[i.index(":")+1] == ' ':
+                    k = i[i.index(':')+2:]
+                    type = k.split()[0]
+                    label = i[0:i.index(':')]
+                    labelS[label] = pc
+                else:
+                    k = i[i.index(':')+1:]
+                    type = k.split()[0]
+                    label = i[0:i.index(':')]
+                    labelS[label] = pc
             else:
-                k = i[i.index(':')+1:]
-                type = k.split()[0]
-                label = i[0:i.index(':')]
-                labelS[label] = pc
-        else:
-            type = i.split(" ")[0]
-        if type in type_of_inst:
-            if ':' not in i:
-                instruction_list.append([i, type_of_inst[type]])
+                type = i.split(" ")[0]
+            if type in type_of_inst:
+                if ':' not in i:
+                    instruction_list.append([i, type_of_inst[type]])
+                else:
+                    instruction_list.append([k, type_of_inst[type]])
             else:
-                instruction_list.append([k, type_of_inst[type]])
-        else:
-            print(f"Error:")
-            print(f"No {type} type instruction.")
-            return
-        pc += 4
-    
-    if folder == "errorGen":
-        pass
-    os.chdir("..")
-    os.chdir(f"{folder}")
-    if folder == "tempfolder":
-        fout = open(os.devnull, 'a')
-    else:
-        fout = open(f"{file}", 'a')
-    error = False
-
-    pc = 0
-    for i in instruction_list:
-        if error == False:
-            try:
-                if i[1] == 'R':
-                    R(i[0], fout, pc)
-                elif i[1] == 'I':
-                    I(i[0], fout, pc)
-                elif i[1] == 'S':
-                    S(i[0], fout, pc)
-                elif i[1] == 'B':
-                    B(i[0], fout, labelS, pc)
-                elif i[1] == 'J':
-                    J(i[0], fout, labelS, pc)
-            except:
-                print("Error:")
-                print(f"Invalid Instruction at line {pc//4}")
+                print(f"Error:")
+                print(f"No {type} type instruction.")
+                return
             pc += 4
+        if folder == "errorGen":
+            pass
+        os.chdir("..")
+        os.chdir(f"{folder}")
+        if folder == "tempfolder":
+            fout = open(os.devnull, 'a')
         else:
-            error = False
-    fout.close()
+            fout = open(f"{file}", 'a')
+        error = False
+
+        pc = 0
+        for i in instruction_list:
+            if error == False:
+                try:
+                    if i[1] == 'R':
+                        R(i[0], fout, pc)
+                    elif i[1] == 'I':
+                        I(i[0], fout, pc)
+                    elif i[1] == 'S':
+                        S(i[0], fout, pc)
+                    elif i[1] == 'B':
+                        B(i[0], fout, labelS, pc)
+                    elif i[1] == 'J':
+                        J(i[0], fout, labelS, pc)
+                except:
+                    print("Error:")
+                    print(f"Invalid Instruction at line {pc//4}")
+                pc += 4
+            else:
+                error = False
+        fout.close()
+    elif virtual_halt+'\\n' in temp:
+        print("Warning:")
+        print("Virtual Hault is not last instruction, some instruction may be skipped")
+    else:
+        print("Error")
+        print("Virtual Hault not used as last statement, program may never terminate")
+    
 
 #---------------------------------------------------------------------------------------------
 import os
