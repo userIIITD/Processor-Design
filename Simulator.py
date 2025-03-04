@@ -40,6 +40,12 @@ ALUResult = ""
 zero = False #flag for b-type instruction
 registers = {"00000" : x0, "00001" : x1, "00010" : x2, "00011" : x3, "00100" : x4, "00101" : x5, "00110" : x6, "00111" : x7, "01000" : x8, "01001" : x9, "01010" : x10, "01011" : x11, "01100" : x12, "01101" : x13, "01110" : x14, "01111" : x15, "10000" : x16, "10001" : x17, "10010" : x18, "10011" : x19, "10100" : x20, "10101" : x21, "10110" : x22, "10111", x23, "11000" : x24, "11001" : x25, "11010" : x26, "11011" : x27, "11100" : x28, "11101" : x29, "11110" : x30, "11111": x31}
 
+def mux(input1,input2,ch1):
+	if(ch1==0):
+		return input1
+	else:
+		return input2
+		
 def signed(inp):
 	#signed integer representation of binary
 	if (inp[0] == '1'): #represents 2's complement
