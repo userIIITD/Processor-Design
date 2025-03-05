@@ -50,11 +50,14 @@ def PCNext(PCSrc,immExt,PC):
 	elif PCSrc==0:
 		PCNext=PC+4
 	return PCNext
-def mux(input1,input2,ch1):
-	if(ch1==0):
+	
+def mux(input1,input2,input3,ch1):
+	if(ch1=='00'):
 		return input1
-	else:
+	elif(ch1=='01'):
 		return input2
+	else:
+		return input3
 		
 def signed(inp):
 	#signed integer representation of binary
