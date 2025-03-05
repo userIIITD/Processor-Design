@@ -49,6 +49,7 @@ def PCNext(PCSrc,immExt,PC):
 		PCNext=PC+int(immext,2)
 	elif PCSrc==0:
 		PCNext=PC+4
+	return PCNext
 def mux(input1,input2,ch1):
 	if(ch1==0):
 		return input1
