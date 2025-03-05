@@ -82,21 +82,21 @@ def ALU(SrcA, SrcB, ALUCont, ALUSrc):
 	immExt = "" #initialise both to empty
 	ALUResult = ""
 	
-	if (ALUSrc == 0): #choosing between RD2 and immExt
+	if (ALUSrc == '0'): #choosing between RD2 and immExt
 		SrcB = RD2
 	else:
 		SrcB = immExt
 		
-	if (ALUCont == 000): #add
+	if (ALUCont == "000"): #add
 		ALUResult = str(int(SrcA) + int(SrcB))
-	elif (ALUCont == 001): #subtract
+	elif (ALUCont == "001"): #subtract
 		ALUResult = str(int(SrcA) - int(SrcB))
-	elif (ALUCont == 010): #bitwise_and
+	elif (ALUCont == "010"): #bitwise_and
 		for i, j in SrcA, SrcB:
 			ALUResult += str(int(i, 2) & int(j, 2))
-	elif (ALUCont == 011): #bitwise_or
+	elif (ALUCont == "011"): #bitwise_or
 		for i, j in SrcA, SrcB:
 			ALUResult += str(int(i, 2) | int(j, 2))
-	elif (ALUCont == 101): #set less than
+	elif (ALUCont == "101"): #set less than
 		if (signed(SrcA) < signed(SrcB)): ALUResult = '1'
 		else: ALUResult = '0'
