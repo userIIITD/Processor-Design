@@ -42,7 +42,7 @@ registers = {"00000" : x0, "00001" : x1, "00010" : x2, "00011" : x3, "00100" : x
 def Instruction_Memory(inst):
 	instmem={"op":inst[32:26],"func3":inst[18:20],"func7":inst[2],"A1":inst[13:16],"A2":inst[8:12],"A3":inst[21:25]}
 	return instmem
-def pcnext(PCSrc,immExt,inst):
+def pcnext(PCSrc,immExt):
 	if PCSrc==1:
 		PCPlus4=PCTarget+4
 		PCTarget+=immExt
