@@ -46,7 +46,7 @@ def Instruction_Memory(inst):
 def PCNext(PCSrc,immExt,PC):
 	global PCNext
 	if PCSrc==1:
-		PCNext=PC+int(immext,2)
+		PCNext=PC+int(immExt,2)
 	elif PCSrc==0:
 		PCNext=PC+4
 	return PCNext
