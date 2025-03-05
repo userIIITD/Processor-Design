@@ -49,10 +49,10 @@ def PCNext(PCSrc,immExt):
 	global PCPlus4,PCTarget
 	if PCSrc==1:
 		PCPlus4=PCTarget+4
-		PCTarget+=immExt
+		PCTarget+=int(immExt,2)
 	elif PCSrc==0:
 		PCPlus4=PCPlus4+4
-		PCTarget=PCPlus4+immExt
+		PCTarget=PCPlus4+int(immExt,2)
 def mux(input1,input2,ch1):
 	if(ch1==0):
 		return input1
