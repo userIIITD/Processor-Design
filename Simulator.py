@@ -43,9 +43,9 @@ ALUResult = ""
 zero = False #flag for b-type instruction
 registers = {"00000" : x0, "00001" : x1, "00010" : x2, "00011" : x3, "00100" : x4, "00101" : x5, "00110" : x6, "00111" : x7, "01000" : x8, "01001" : x9, "01010" : x10, "01011" : x11, "01100" : x12, "01101" : x13, "01110" : x14, "01111" : x15, "10000" : x16, "10001" : x17, "10010" : x18, "10011" : x19, "10100" : x20, "10101" : x21, "10110" : x22, "10111", x23, "11000" : x24, "11001" : x25, "11010" : x26, "11011" : x27, "11100" : x28, "11101" : x29, "11110" : x30, "11111": x31}
 def Instruction_Memory(inst):
-	instmem={"op":inst[32:26],"func3":inst[18:20],"func7":inst[2],"A1":inst[13:16],"A2":inst[8:12],"A3":inst[21:25]}
-	return instmem
-def pcnext(PCSrc,immExt):
+	instr={"op":inst[32:26],"func3":inst[18:20],"func7":inst[2],"A1":inst[13:16],"A2":inst[8:12],"A3":inst[21:25]}
+	return instr
+def PCNext(PCSrc,immExt):
 	global PCPlus4,PCTarget
 	if PCSrc==1:
 		PCPlus4=PCTarget+4
