@@ -42,11 +42,60 @@ ReadValue=0
 memory=[0]*128
 zero = False #flag for b-type instruction
 registers = {"00000" : x0, "00001" : x1, "00010" : x2, "00011" : x3, "00100" : x4, "00101" : x5, "00110" : x6, "00111" : x7, "01000" : x8, "01001" : x9, "01010" : x10, "01011" : x11, "01100" : x12, "01101" : x13, "01110" : x14, "01111" : x15, "10000" : x16, "10001" : x17, "10010" : x18, "10011" : x19, "10100" : x20, "10101" : x21, "10110" : x22, "10111": x23, "11000" : x24, "11001" : x25, "11010" : x26, "11011" : x27, "11100" : x28, "11101" : x29, "11110" : x30, "11111": x31}
+
+
+def control_unit(opcode, funct3, funct7):
+    signals = {"PCSrc": "0", "ResultSrc": "0", "MemWrite": "0", "ALUControl": "000", "ALUSrc": "0", "ImmSrc": "00", "RegWrite": "0"}
+    
+    if opcode == "0110011": #R-type
+        signals["RegWrite"] = 1
+
+        if funct3 == "000" and funct7 == "0100000":
+            signals["ALUControl"] = "001"
+        elif funct3 == "111":
+            signals["ALUControl"] = "010"
+        elif funct3 == "110":
+            signals["ALUControl"] = "011"
+
+    elif opcode == "0010011":  #I-type
+        signals["ALUSrc"] = "1"
+        signals["RegWrite"] = "1"
+
+        if funct3 == "000":
+            signals["ALUControl"] = "000"
+        elif funct3 == "110":
+            signals["ALUControl"] = "011"
+        elif funct3 == "111":
+            signals["ALUControl"] = "010"
+
+    elif opcode == "0000011":  #LW
+        signals["ResultSrc"] = "1"
+        signals["ALUSrc"] = "1"
+        signals["RegWrite"] = "1"
+
+    elif opcode == "0100011":  #SW
+        signals["MemWrite"] = "1"
+        signals["ALUControl"] = "010"
+        signals["ALUSrc"] = "1"
+        signals["ImmSrc"] = "1"
+
+    elif opcode == "1100011":  #Branch
+        signals["PCSrc"] =  "1"
+        signals["ALUControl"] = "001"
+        signals["ImmSrc"] = "10"
+
+    else:
+        return "Invalid opcode"
+    
+    return signals
+
 def Instruction_Memory(inst):
 	instr={"op":inst[25:32],"func3":inst[17:20],"func7":inst[1],"A1":inst[12:17],"A2":inst[7:12],"A3":inst[20:25],"Extend":inst[0:25]}
 	return instr
+	
 def PCNext(PCSrc,immExt,PC):
 	global PCNext
+	
 	if PCSrc==1:
 		PCNext=PC+int(immExt,2)
 	elif PCSrc==0:
@@ -117,6 +166,7 @@ def ALU(SrcA, SrcB, ALUCont, ALUSrc):
 		else: ALUResult = '0'
 def data_memory(index,memory,value=0):
 	global RD2,ALUResult,MemWrite,ReadValue
+	
 	if(MemWrite==0):
 		ReadValue=memory[index]
 	else:
