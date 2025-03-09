@@ -45,6 +45,7 @@ registers = {"00000" : x0, "00001" : x1, "00010" : x2, "00011" : x3, "00100" : x
 
 
 def control_unit(opcode, funct3, funct7):
+    global zero
     signals = {"PCSrc": "0", "ResultSrc": "0", "MemWrite": "0", "ALUControl": "000", "ALUSrc": "0", "ImmSrc": "00", "RegWrite": "0"}
     
     if opcode == "0110011": #R-type
@@ -80,12 +81,20 @@ def control_unit(opcode, funct3, funct7):
         signals["ImmSrc"] = "1"
 
     elif opcode == "1100011":  #Branch
-        signals["PCSrc"] =  "1"
         signals["ALUControl"] = "001"
         signals["ImmSrc"] = "10"
 
-    else:
-        return "Invalid opcode"
+        if funct3 == "000":
+            if zero == "1":
+                signals["PCSrc"] = "1"
+            else:
+                signals["PCSrc"] = "0"
+
+        elif funct3 == "001":
+            if zero == "0":
+                signals["PCSrc"] = "1"
+            else:
+                signals["PCSrc"] = "0"
     
     return signals
 
