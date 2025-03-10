@@ -95,6 +95,13 @@ def control_unit(opcode, funct3, funct7):
                 signals["PCSrc"] = "1"
             else:
                 signals["PCSrc"] = "0"
+
+    elif opcode == "1101111":  #j-type
+        signals["RegWrite"] = "1"
+        signals["PCSrc"] = "1"
+        signals["ImmSrc"] = "11"
+        signals["ResultSrc"] = "2"
+        signals["ALUSrc"] = "1"
     
     return signals
 
