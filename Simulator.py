@@ -65,43 +65,50 @@ def control_unit(opcode, funct3, funct7):
                 signals["ALUControl"] = "101" #SLT
 
     elif opcode == "0010011":  #I-type
-        signals["ALUSrc"] = "1"
-        signals["RegWrite"] = "1"
-
-        if funct3 == "000":
-            signals["ALUControl"] = "000"
-        elif funct3 == "110":
-            signals["ALUControl"] = "011"
-        elif funct3 == "111":
-            signals["ALUControl"] = "010"
-
+         signals["ALUSrc"] = "1"
+         signals["RegWrite"] = "1"
+ 
+         if funct3 == "000":
+             signals["ALUControl"] = "000"
+         elif funct3 == "110":
+             signals["ALUControl"] = "011"
+         elif funct3 == "111":
+             signals["ALUControl"] = "010"
+ 
     elif opcode == "0000011":  #LW
-        signals["ResultSrc"] = "1"
-        signals["ALUSrc"] = "1"
-        signals["RegWrite"] = "1"
-
+         signals["ResultSrc"] = "1"
+         signals["ALUSrc"] = "1"
+         signals["RegWrite"] = "1"
+ 
     elif opcode == "0100011":  #SW
-        signals["MemWrite"] = "1"
-        signals["ALUControl"] = "010"
-        signals["ALUSrc"] = "1"
-        signals["ImmSrc"] = "1"
-
+         signals["MemWrite"] = "1"
+         signals["ALUControl"] = "010"
+         signals["ALUSrc"] = "1"
+         signals["ImmSrc"] = "1"
+ 
     elif opcode == "1100011":  #Branch
-        signals["ALUControl"] = "001"
-        signals["ImmSrc"] = "10"
-
-        if funct3 == "000":
-            if zero == "1":
-                signals["PCSrc"] = "1"
-            else:
-                signals["PCSrc"] = "0"
-
-        elif funct3 == "001":
-            if zero == "0":
-                signals["PCSrc"] = "1"
-            else:
-                signals["PCSrc"] = "0"
-    
+         signals["ALUControl"] = "001"
+         signals["ImmSrc"] = "10"
+ 
+         if funct3 == "000":
+             if zero == "True":
+                 signals["PCSrc"] = "1"
+             else:
+                 signals["PCSrc"] = "0"
+ 
+         elif funct3 == "001":
+             if zero == "False":
+                 signals["PCSrc"] = "1"
+             else:
+                 signals["PCSrc"] = "0"
+ 
+    elif opcode == "1101111":  #j-type
+         signals["RegWrite"] = "1"
+         signals["PCSrc"] = "1"
+         signals["ImmSrc"] = "11"
+         signals["ResultSrc"] = "2"
+         signals["ALUSrc"] = "1"
+ 
     return signals
 
 def Instruction_Memory(inst):
