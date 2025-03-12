@@ -209,13 +209,14 @@ os.chdir("..")
 simple_folder = os.path.join("automatedTesting","tests","bin","simple")
 for file in os.listdir(simple_folder):
 	in_and_out(file,"simple")
+	parent_folder=os.getcwd().split('\\')[-1].split('/')[-1]
 	os.chdir("..")
-	os.chdir("CO_Project_Mid_Evaluation_Framework_Mar03_2025")
+	os.chdir(parent_folder)
 
 #Reading file in hard
 simple_folder = os.path.join("automatedTesting","tests","bin","hard")
 for file in os.listdir(simple_folder):
-	print(file)
 	in_and_out(file,"hard")
+	parent_folder=os.getcwd().split('\\')[-1].split('/')[-1]
 	os.chdir("..")
-	os.chdir("CO_Project_Mid_Evaluation_Framework_Mar03_2025")
+	os.chdir(parent_folder)
