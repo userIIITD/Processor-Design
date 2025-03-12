@@ -1,4 +1,3 @@
-import os
 #Use these variables to load/read values in register
 x0 = 0
 x1 = 0
@@ -52,12 +51,18 @@ def control_unit(opcode, funct3, funct7):
     if opcode == "0110011": #R-type
         signals["RegWrite"] = 1
 
-        if funct3 == "000" and funct7 == "0100000":
-            signals["ALUControl"] = "001"
-        elif funct3 == "111":
-            signals["ALUControl"] = "010"
-        elif funct3 == "110":
-            signals["ALUControl"] = "011"
+        if funct7 == "0100000":
+            if funct3 == "000":
+               signals["ALUControl"] = "001" #subtract
+        elif funct7 == "0000000":
+            if funct3 == "000":
+                signals["ALUControl"] = "000" #add
+            elif funct3 == "111":
+                signals["ALUControl"] = "010" #and
+            elif funct3 == "110":
+                signals["ALUControl"] = "011" #or
+            elif funct3 == "101":
+                signals["ALUControl"] = "101" #SLT
 
     elif opcode == "0010011":  #I-type
         signals["ALUSrc"] = "1"
@@ -86,23 +91,16 @@ def control_unit(opcode, funct3, funct7):
         signals["ImmSrc"] = "10"
 
         if funct3 == "000":
-            if zero == "True":
+            if zero == "1":
                 signals["PCSrc"] = "1"
             else:
                 signals["PCSrc"] = "0"
 
         elif funct3 == "001":
-            if zero == "False":
+            if zero == "0":
                 signals["PCSrc"] = "1"
             else:
                 signals["PCSrc"] = "0"
-
-    elif opcode == "1101111":  #j-type
-        signals["RegWrite"] = "1"
-        signals["PCSrc"] = "1"
-        signals["ImmSrc"] = "11"
-        signals["ResultSrc"] = "2"
-        signals["ALUSrc"] = "1"
     
     return signals
 
@@ -181,7 +179,6 @@ def ALU(SrcA, SrcB, ALUCont, ALUSrc):
 	elif (ALUCont == "101"): #set less than
 		if (signed(SrcA) < signed(SrcB)): ALUResult = '1'
 		else: ALUResult = '0'
-		
 def data_memory(index,memory,value=0):
 	global RD2,ALUResult,MemWrite,ReadValue
 	
@@ -189,38 +186,3 @@ def data_memory(index,memory,value=0):
 		ReadValue=memory[index]
 	else:
 		memory[index]=value
-
-
-def execute(idata):
-	return idata
-#Taking input from files and giving output
-
-def in_and_out(file,loc):
-	f=open(os.path.join("automatedTesting","tests","bin",loc,file),'r')
-	input_data=f.readlines()
-	output_data=execute(input_data)
-	f.close()
-	f=open(os.path.join("automatedTesting","tests","user_traces",loc,file),'w')
-	for i in output_data:
-		f.write(i)
-	f.close()
-	
-run=True
-file_no=1
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
-os.chdir("..")
-#Reading files in simple 
-simple_folder = os.path.join("automatedTesting","tests","bin","simple")
-for file in os.listdir(simple_folder):
-	in_and_out(file,"simple")
-	parent_folder=os.getcwd().split('\\')[-1].split('/')[-1]
-	os.chdir("..")
-	os.chdir(parent_folder)
-
-#Reading file in hard
-simple_folder = os.path.join("automatedTesting","tests","bin","hard")
-for file in os.listdir(simple_folder):
-	in_and_out(file,"hard")
-	parent_folder=os.getcwd().split('\\')[-1].split('/')[-1]
-	os.chdir("..")
-	os.chdir(parent_folder)
