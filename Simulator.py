@@ -187,3 +187,35 @@ def data_memory(index,memory,value=0):
 		ReadValue=memory[index]
 	else:
 		memory[index]=value
+
+
+def execute(idata):
+	return idata
+#Taking input from files and giving output
+def in_and_out(file,loc):
+	f=open(os.path.join("automatedTesting","tests","bin",loc,file),'r')
+	input_data=f.readlines()
+	output_data=execute(input_data)
+	f.close()
+	f=open(os.path.join("automatedTesting","tests","user_traces",loc,file),'w')
+	for i in output_data:
+		f.write(i)
+	f.close()
+run=True
+file_no=1
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+os.chdir("..")
+#Reading files in simple 
+simple_folder = os.path.join("automatedTesting","tests","bin","simple")
+for file in os.listdir(simple_folder):
+	in_and_out(file,"simple")
+	os.chdir("..")
+	os.chdir("CO_Project_Mid_Evaluation_Framework_Mar03_2025")
+
+#Reading file in hard
+simple_folder = os.path.join("automatedTesting","tests","bin","hard")
+for file in os.listdir(simple_folder):
+	print(file)
+	in_and_out(file,"hard")
+	os.chdir("..")
+	os.chdir("CO_Project_Mid_Evaluation_Framework_Mar03_2025")
