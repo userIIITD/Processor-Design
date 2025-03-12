@@ -181,6 +181,7 @@ def ALU(SrcA, SrcB, ALUCont, ALUSrc):
 	elif (ALUCont == "101"): #set less than
 		if (signed(SrcA) < signed(SrcB)): ALUResult = '1'
 		else: ALUResult = '0'
+		
 def data_memory(index,memory,value=0):
 	global RD2,ALUResult,MemWrite,ReadValue
 	
@@ -193,6 +194,7 @@ def data_memory(index,memory,value=0):
 def execute(idata):
 	return idata
 #Taking input from files and giving output
+
 def in_and_out(file,loc):
 	f=open(os.path.join("automatedTesting","tests","bin",loc,file),'r')
 	input_data=f.readlines()
@@ -202,6 +204,7 @@ def in_and_out(file,loc):
 	for i in output_data:
 		f.write(i)
 	f.close()
+	
 run=True
 file_no=1
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
