@@ -85,13 +85,13 @@ def control_unit(opcode, funct3, funct7):
         signals["ImmSrc"] = "10"
 
         if funct3 == "000":
-            if zero == "1":
+            if zero == "True":
                 signals["PCSrc"] = "1"
             else:
                 signals["PCSrc"] = "0"
 
         elif funct3 == "001":
-            if zero == "0":
+            if zero == "False":
                 signals["PCSrc"] = "1"
             else:
                 signals["PCSrc"] = "0"
