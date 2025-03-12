@@ -1,3 +1,4 @@
+import os
 #Use these variables to load/read values in register
 x0 = 0
 x1 = 0
