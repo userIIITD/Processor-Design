@@ -197,33 +197,34 @@ def data_memory(index,memory,value=0):
 		memory[index]=value
 
 def execute(idata):
- 	return idata
- #Taking input from files and giving output
- def in_and_out(file,loc):
- 	f=open(os.path.join("automatedTesting","tests","bin",loc,file),'r')
- 	input_data=f.readlines()
- 	output_data=execute(input_data)
- 	f.close()
- 	f=open(os.path.join("automatedTesting","tests","user_traces",loc,file),'w')
- 	for i in output_data:
- 		f.write(i)
- 	f.close()
- run=True
- file_no=1
- os.chdir(os.path.dirname(os.path.abspath(__file__)))
- os.chdir("..")
- #Reading files in simple 
- simple_folder = os.path.join("automatedTesting","tests","bin","simple")
- for file in os.listdir(simple_folder):
- 	in_and_out(file,"simple")
- 	parent_folder=os.getcwd().split('\\')[-1].split('/')[-1]
- 	os.chdir("..")
- 	os.chdir(parent_folder)
- 
- #Reading file in hard
- simple_folder = os.path.join("automatedTesting","tests","bin","hard")
- for file in os.listdir(simple_folder):
- 	in_and_out(file,"hard")
- 	parent_folder=os.getcwd().split('\\')[-1].split('/')[-1]
- 	os.chdir("..")
- 	os.chdir(parent_folder)
+	return idata
+#Taking input from files and giving output
+def in_and_out(file,loc):
+	f=open(os.path.join("automatedTesting","tests","bin",loc,file),'r')
+	input_data=f.readlines()
+	output_data=execute(input_data)
+	f.close()
+	f=open(os.path.join("automatedTesting","tests","user_traces",loc,file),'w')
+	for i in output_data:
+		f.write(i)
+	f.close()
+	
+run=True
+file_no=1
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+os.chdir("..")
+#Reading files in simple 
+simple_folder = os.path.join("automatedTesting","tests","bin","simple")
+for file in os.listdir(simple_folder):
+	in_and_out(file,"simple")
+	parent_folder=os.getcwd().split('\\')[-1].split('/')[-1]
+	os.chdir("..")
+	os.chdir(parent_folder)
+
+#Reading file in hard
+simple_folder = os.path.join("automatedTesting","tests","bin","hard")
+for file in os.listdir(simple_folder):
+	in_and_out(file,"hard")
+	parent_folder=os.getcwd().split('\\')[-1].split('/')[-1]
+	os.chdir("..")
+	os.chdir(parent_folder)
