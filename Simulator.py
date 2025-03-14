@@ -18,6 +18,7 @@ dict_instructions = {}
 # registers = {"00000" : x0, "00001" : x1, "00010" : x2, "00011" : x3, "00100" : x4, "00101" : x5, "00110" : x6, "00111" : x7, "01000" : x8, "01001" : x9, "01010" : x10, "01011" : x11, "01100" : x12, "01101" : x13, "01110" : x14, "01111" : x15, "10000" : x16, "10001" : x17, "10010" : x18, "10011" : x19, "10100" : x20, "10101" : x21, "10110" : x22, "10111": x23, "11000" : x24, "11001" : x25, "11010" : x26, "11011" : x27, "11100" : x28, "11101" : x29, "11110" : x30, "11111": x31}
 
 registers = {"00000" : 0, "00001" : 0, "00010" : 380, "00011" : 0, "00100" : 0, "00101" : 0, "00110" : 0, "00111" : 0, "01000" : 0, "01001" : 0, "01010" : 0, "01011" : 0, "01100" : 0, "01101" : 0, "01110" : 0, "01111" : 0, "10000" : 0, "10001" : 0, "10010" : 0, "10011" : 0, "10100" : 0, "10101" : 0, "10110" : 0, "10111": 0, "11000" : 0, "11001" : 0, "11010" : 0, "11011" : 0, "11100" : 0, "11101" : 0, "11110" : 0, "11111": 0}
+pc_values = []
 
 def int_to_binary(num, bit):
     return format(num & (2**bit - 1), f"0{bit}b")
@@ -301,6 +302,7 @@ def execute(idata__):
 	while dict_instructions[pc+4] != "00000000000000000000000001100011": #Halting instruction
 		print(dict_instructions[pc+4])
 		zero = False
+		pc_values.append(pc+4)
 		# print(pc+4)
 		# print(registers)
 		RD1, RD2, RegWrite, MemWrite, ReadValue = 0, 0, 0, 0, 0 #reinitialises every variable
@@ -360,6 +362,8 @@ def execute(idata__):
 
 		print()
 		PCNext(cu["PCSrc"], k["op"])
+
+pc_values.append(pc+4)
 
 # execute(idata__)
 # print("In register", registers['01001'])
