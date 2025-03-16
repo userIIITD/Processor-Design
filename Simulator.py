@@ -295,7 +295,7 @@ def stack_memory(index):
 # "00000000000000000000000001100011"]
 
 def execute(idata__):
-	# PC(idata__)
+	PC(idata__)
 	# print(dict_instructions)
 	global RD1, RD2, RegWrite, MemWrite, pc, zero
 	# pc = 4
