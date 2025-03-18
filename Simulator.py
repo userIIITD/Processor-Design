@@ -373,6 +373,8 @@ pc_values.append(pc+4)
 def in_and_out(file,loc):
 	f=open(os.path.join("automatedTesting","tests","bin",loc,file),'r')
 	input_data=f.readlines()
+	for i in range(len(input_data)):
+		input_data[i]=input_data[i].strip()
 	output_data=execute(input_data)
 	f.close()
 	f=open(os.path.join("automatedTesting","tests","user_traces",loc,file),'w')
