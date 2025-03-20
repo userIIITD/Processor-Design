@@ -362,6 +362,18 @@ def execute(idata__):
 
 		print()
 		PCNext(cu["PCSrc"], k["op"])
+		register_value=list(registers.values())
+		for i in range(len(register_value)):
+			register_value[i]=int_to_binary(register_value[i],32)
+		binary_pc=int_to_binary(pc,32)
+		register_after_inst.append([binary_pc,register_value])
+		#print(binary_pc)
+	register_value=list(registers.values())
+	for i in range(len(register_value)):
+		register_value[i]=int_to_binary(register_value[i],32)
+	binary_pc=int_to_binary(pc+4,32)
+	register_after_inst.append([binary_pc,register_value])
+	pc=0
 
 pc_values.append(pc+4)
 
@@ -370,17 +382,41 @@ pc_values.append(pc+4)
 # print(registers)
 
 #Taking input from files and giving output
+hexa={0:"0",1:"1",2:"2",3:"3",4:"4",5:"5",6:"6",7:"7",8:"8",9:"9",10:"A",11:"B",12:"C",13:"D",14:"E",15:"F",}
+#Taking input from files and giving output
 def in_and_out(file,loc):
+	global register_after_inst,Data_memory,hexa
 	f=open(os.path.join("automatedTesting","tests","bin",loc,file),'r')
 	input_data=f.readlines()
 	for i in range(len(input_data)):
 		input_data[i]=input_data[i].strip()
-	output_data=execute(input_data)
+	execute(input_data)
 	f.close()
 	f=open(os.path.join("automatedTesting","tests","user_traces",loc,file),'w')
-	for i in output_data:
+	for i,j in register_after_inst:
+		f.write("0b")
 		f.write(i)
+		f.write(" ")
+		for k in j:
+			f.write("0b")
+			f.write(k)
+			f.write(" ")
+		f.write("\n")
+	register_after_inst=[]
+	for j in range(0,32):
+		i=4*j
+		f.write("0x0001")
+		unit=i%16
+		remaing=i//16
+		f.write("00")
+		f.write(str(remaing))
+		f.write(hexa[unit])
+		f.write(":")
+		f.write("0b")
+		f.write(int_to_binary(Data_memory[j],32))
+		f.write("\n")
 	f.close()
+	
 	
 run=True
 file_no=1
