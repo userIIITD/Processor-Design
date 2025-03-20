@@ -299,6 +299,7 @@ def execute(idata__):
 	# print(dict_instructions)
 	global RD1, RD2, RegWrite, MemWrite, pc, zero
 	# pc = 4
+	register_after_inst=[]
 	while dict_instructions[pc+4] != "00000000000000000000000001100011": #Halting instruction
 		print(dict_instructions[pc+4])
 		zero = False
@@ -394,27 +395,16 @@ def in_and_out(file,loc):
 	f.close()
 	f=open(os.path.join("automatedTesting","tests","user_traces",loc,file),'w')
 	for i,j in register_after_inst:
-		f.write("0b")
-		f.write(i)
-		f.write(" ")
+		f.write(f"0b{i} ")
 		for k in j:
-			f.write("0b")
-			f.write(k)
-			f.write(" ")
+			f.write(f"0b{k} ")
 		f.write("\n")
 	register_after_inst=[]
 	for j in range(0,32):
 		i=4*j
-		f.write("0x0001")
 		unit=i%16
 		remaing=i//16
-		f.write("00")
-		f.write(str(remaing))
-		f.write(hexa[unit])
-		f.write(":")
-		f.write("0b")
-		f.write(int_to_binary(Data_memory[j],32))
-		f.write("\n")
+		f.write(f"0x000100{str(remaing)}{hexa[unit]}:0b{int_to_binary(Data_memory[j],32)}\n")
 	f.close()
 	
 	
