@@ -212,7 +212,7 @@ def ALU(SrcA, SrcB, ALUCont, ALUSrc):
 			ALUResult += str(int(i, 2) | int(j, 2))
 		ALUResult = int(ALUResult, 2)
 	elif (ALUCont == "101"): #set less than
-		if (SrcA > signed(SrcB)): ALUResult = '1'
+		if (SrcA < signed(SrcB)): ALUResult = '1'
 		else: ALUResult = '0'
 	elif (ALUCont == "111"): #shift right logical
 		ALUResult = str(SrcA >> int(SrcB, 2))
@@ -381,8 +381,8 @@ def execute(idata__):
 				registers[k["A3"]] = pc + 4
 
 		# print()
-		PCNext(cu["PCSrc"], k["op"])
 		register_value=list(registers.values())
+		PCNext(cu["PCSrc"], k["op"])
 		for i in range(len(register_value)):
 			register_value[i]=int_to_binary(register_value[i],32)
 		binary_pc=int_to_binary(pc,32)
@@ -455,10 +455,10 @@ def execute(idata__):
 			registers[k["A3"]] = pc + 4
 
 	# print()
-	PCNext(cu["PCSrc"], k["op"])
 	#---------------------------------------------------------------------------
 
 	register_value=list(registers.values())
+	PCNext(cu["PCSrc"], k["op"])
 	for i in range(len(register_value)):
 		register_value[i]=int_to_binary(register_value[i],32)
 	binary_pc=int_to_binary(pc+4,32)
