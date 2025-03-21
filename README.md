@@ -1,5 +1,5 @@
 # Processor-Design
-# <I><bg color = "Red">Have to check the simulator with some custom testcases
+# <I><p color = "red">Have to check the simulator with some custom testcases</p>
 # Collaborators
 
       2024155. Bhumik
