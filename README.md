@@ -1,5 +1,5 @@
 # Processor-Design
-# Have to check the simulator with some custom testcases
+# <I>Have to check the simulator with some custom testcases
 # Collaborators
 
       2024155. Bhumik
