@@ -21,6 +21,12 @@ register_after_inst=[]
 registers = {"00000" : 0, "00001" : 0, "00010" : 380, "00011" : 0, "00100" : 0, "00101" : 0, "00110" : 0, "00111" : 0, "01000" : 0, "01001" : 0, "01010" : 0, "01011" : 0, "01100" : 0, "01101" : 0, "01110" : 0, "01111" : 0, "10000" : 0, "10001" : 0, "10010" : 0, "10011" : 0, "10100" : 0, "10101" : 0, "10110" : 0, "10111": 0, "11000" : 0, "11001" : 0, "11010" : 0, "11011" : 0, "11100" : 0, "11101" : 0, "11110" : 0, "11111": 0}
 pc_values = []
 
+def reset():
+	global registers
+	for i in registers:
+		registers[i] = 0
+	registers["00010"] = 380
+
 def int_to_binary(num, bit):
     return format(num & (2**bit - 1), f"0{bit}b")
 
@@ -98,6 +104,13 @@ def control_unit(opcode, funct3, funct7):
 		signals["ImmSrc"] = "11"
 		signals["ResultSrc"] = "10"
 		signals["ALUSrc"] = "1"
+	
+	elif opcode == "1100111":  #jalr-type
+		signals["RegWrite"] = "1"
+		signals["PCSrc"] = "1"
+		signals["ImmSrc"] = "00"
+		signals["ResultSrc"] = "11"
+		signals["ALUSrc"] = "1"
 
 	return signals
 
@@ -113,21 +126,23 @@ def PCNext(PCSrc,op="X"):
 			pc=pc+signed(immExt)
 			if (pc % 2 == 1):
 				pc -= 1
-		if (op == "1100111"):
-			pc = immExt
+		elif (op == "1100111"):
+			pc = signed(immExt)
 			if (pc % 2 == 1):
 				pc -= 1
-		pc = pc + signed(immExt)
+		else:
+			pc = pc + signed(immExt)
 	elif PCSrc=="0":
 		pc=pc+4
 	# return PC
 
 def PC(instruction):
 	global dict_instructions
-	PC = 4 #initialising PC with zero
+	PC = 0 #initialising PC with zero
 	for i in instruction:
 		dict_instructions[PC] = i
 		PC += 4
+	# dict_instructions[PC] = False
 	
 def mux(input1,input2,input3,ch1):
 	if(ch1=='00'):
@@ -213,10 +228,31 @@ def data_memory(index, memory, op,value=0):
 		memory[index - 65536] = value
 	
 def stack_memory(index):
-	global ReadValue
+	global ReadValue, Stack_memory
 	ReadValue = Stack_memory[index - 256]
 
-# idata_ = ["00000000010100000000010010010011", "00000000000000000000100100010011", "00000000010100000010001100110011", "00000000100110010101101000110011", "00000000000000000000000001100011"]
+# idata__ = ["00000000010100000000010010010011",
+# "00000000000000000000100100010011",
+# "00000000010100000010001100110011",
+# "00000000100110010101101000110011",
+# "00000000000000000000000001100011"]
+
+# idata__ = ["00000000101000000000010100010011",
+# "00000000000000000000001010010011",
+# "00000000000100000000001100010011",
+# "00000000000100000000001110010011",
+# "00000010000001010000001001100011",
+# "00000010011101010000001001100011",
+# "00000000011000101000010110110011",
+# "00000000000000110000001010010011",
+# "00000000000001011000001100010011",
+# "00000000000100111000001110010011",
+# "11111110101000111001100011100011",
+# "00000101110100000000100010010011",
+# "00000000000000000000010100010011",
+# "00000000000000000000010110010011",
+# "00000000000100000000010110010011",
+# "00000000000000000000000001100011"]
 
 # idata__ = ["00000000011110100000101000010011",
 # "01000001010000000000111100110011",
@@ -252,23 +288,6 @@ def stack_memory(index):
 # "00000000000000010010001010000011",
 # "00000000000000000000000001100011"]
 
-# idata__ = ["00000000101000000000010100010011",
-# "00000000000000000000001010010011",
-# "00000000000100000000001100010011",
-# "00000000000100000000001110010011",
-# "00000010000001010000001001100011",
-# "00000010011101010000001001100011",
-# "00000000011000101000010110110011",
-# "00000000000000110000001010010011",
-# "00000000000001011000001100010011",
-# "00000000000100111000001110010011",
-# "11111110101000111001100011100011",
-# "00000101110100000000100010010011",
-# "00000000000000000000010100010011",
-# "00000000000000000000010110010011",
-# "00000000000100000000010110010011",
-# "00000000000000000000000001100011"]
-
 # idata__ = ["00000000100010010000101000010011",
 # "00000000010010110000101100010011",
 # "00000000100101000110111100110011",
@@ -299,16 +318,15 @@ def execute(idata__):
 	PC(idata__)
 	# print(dict_instructions)
 	global RD1, RD2, RegWrite, MemWrite, pc, zero,register_after_inst
-	# pc = 4
-	
-	while dict_instructions[pc+4] != "00000000000000000000000001100011": #Halting instruction
-		print(dict_instructions[pc+4])
+	reset() #resets values in registers before reading a new file
+
+	while dict_instructions[pc] != "00000000000000000000000001100011": #Halting instruction
+		# print(dict_instructions[pc])
 		zero = False
-		pc_values.append(pc+4)
-		# print(pc+4)
+		# print("Current PC : ", pc)
 		# print(registers)
 		RD1, RD2, RegWrite, MemWrite, ReadValue = 0, 0, 0, 0, 0 #reinitialises every variable
-		k = Instruction_Memory(dict_instructions[pc+4])
+		k = Instruction_Memory(dict_instructions[pc])
 		if (k["op"] == "1100011"): #b-type condition checking
 			if (k["func3"] == "000"):
 				if (registers[k["A1"]] == registers[k["A2"]]):
@@ -359,10 +377,10 @@ def execute(idata__):
 				else:
 					registers[k["A3"]] = int(ALUResult)
 			
-			elif cu["ResultSrc"] == "10":
+			elif cu["ResultSrc"] == "10": #jal and jalr
 				registers[k["A3"]] = pc + 4
 
-		print()
+		# print()
 		PCNext(cu["PCSrc"], k["op"])
 		register_value=list(registers.values())
 		for i in range(len(register_value)):
@@ -370,19 +388,90 @@ def execute(idata__):
 		binary_pc=int_to_binary(pc,32)
 		register_after_inst.append([binary_pc,register_value])
 		#print(binary_pc)
+		pc_values.append(pc+4)
+	
+	#---------------------------------------------------------------------------
+	# print(dict_instructions[pc])
+	zero = False
+	# print("Current PC : ", pc)
+	# print(registers)
+	RD1, RD2, RegWrite, MemWrite, ReadValue = 0, 0, 0, 0, 0 #reinitialises every variable
+	k = Instruction_Memory(dict_instructions[pc])
+	if (k["op"] == "1100011"): #b-type condition checking
+		if (k["func3"] == "000"):
+			if (registers[k["A1"]] == registers[k["A2"]]):
+				zero = True
+			else:
+				zero = False
+		elif (k["func3"] == "001"):
+			if (registers[k["A1"]] != registers[k["A2"]]):
+				zero = True
+			else:
+				zero = False
+		elif (k["func3"] == "100"):
+			if (registers[k["A1"]] < registers[k["A2"]]):
+				zero = True
+			else:
+				zero = False
+	# print(k)/
+	cu = control_unit(k["op"], k["func3"], k["func7"])
+	# print(cu)
+	rf = register_file(k["A1"], k["A2"], k["A3"], ReadValue, RegWrite)
+	ex = extend(k["Extend"], cu["ImmSrc"])
+	# print("immExt", immExt, signed(immExt))
+
+	# if cu["ALUSrc"] == "1":
+	# 	aluin = int(immExt, 2) #might have error 
+	# elif cu["ALUSrc"] == "0":
+	# 	aluin = RD2
+	alu = ALU(RD1, 0, cu["ALUControl"], cu["ALUSrc"]) #SrcB is set to 0 but the value is decided in the function
+	# print("alucont", cu["ALUControl"])
+	# print(alu)
+	# print("ALUResult :", ALUResult)
+
+	if (k['A1'] == "00010"):
+		dm = stack_memory(registers["00010"])
+		print("stack_mem location :", registers["00010"] )
+	else:
+		dm = data_memory(int(ALUResult), Data_memory, k["op"], RD2)
+
+	if (cu["RegWrite"] == "1"):
+		if (cu["ResultSrc"] == "01"):
+			if k["A3"] == "00010":
+				registers[k["A3"]] = registers[k["A3"]] - ReadValue + 380 #x2 is stack pointer register
+			else:
+				registers[k["A3"]] = ReadValue
+
+		elif cu["ResultSrc"] == "00":
+			if k["A3"] == "00010":
+				registers[k["A3"]] = registers[k["A3"]] - int(ALUResult) + 380 #x2 is stack pointer register
+			else:
+				registers[k["A3"]] = int(ALUResult)
+		
+		elif cu["ResultSrc"] == "10":
+			registers[k["A3"]] = pc + 4
+		
+		elif cu["ResultSrc"] == "11":
+			registers[k["A3"]] = pc + 4
+
+	# print()
+	PCNext(cu["PCSrc"], k["op"])
+	#---------------------------------------------------------------------------
+
 	register_value=list(registers.values())
 	for i in range(len(register_value)):
 		register_value[i]=int_to_binary(register_value[i],32)
 	binary_pc=int_to_binary(pc+4,32)
-	register_after_inst.append([binary_pc,register_value])
+	register_after_inst.append([binary_pc, register_value])
 	pc=0
 
 pc_values.append(pc+4)
 
+#---------------------------------------------SEPARATING FILE HANDLING FROM MAIN PROGRAM---------------------------------------------
 # execute(idata__)
 # print("In register", registers['01001'])
 # print(registers)
-
+# print(pc_values)
 #Taking input from files and giving output
 hexa={0:"0",1:"1",2:"2",3:"3",4:"4",5:"5",6:"6",7:"7",8:"8",9:"9",10:"A",11:"B",12:"C",13:"D",14:"E",15:"F",}
 #Taking input from files and giving output
