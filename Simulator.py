@@ -368,17 +368,30 @@ def execute(idata__):
 			if (cu["ResultSrc"] == "01"):
 				if k["A3"] == "00010":
 					registers[k["A3"]] = registers[k["A3"]] - ReadValue + 380 #x2 is stack pointer register
+				elif k["A3"] == "00000":
+					registers[k["A3"]] = 0
 				else:
 					registers[k["A3"]] = ReadValue
 
 			elif cu["ResultSrc"] == "00":
 				if k["A3"] == "00010":
 					registers[k["A3"]] = registers[k["A3"]] - int(ALUResult) + 380 #x2 is stack pointer register
+				elif k["A3"] == "00000":
+					registers[k["A3"]] = 0
 				else:
 					registers[k["A3"]] = int(ALUResult)
 			
 			elif cu["ResultSrc"] == "10": #jal and jalr
-				registers[k["A3"]] = pc + 4
+				if k["A3"] == "00000":
+					registers[k["A3"]] = 0
+				else:
+					registers[k["A3"]] = pc + 4
+
+			elif cu["ResultSrc"] == "11":
+				if k["A3"] == "00000":
+					registers[k["A3"]] = 0
+				else:
+					registers[k["A3"]] = pc + 4
 
 		# print()
 		register_value=list(registers.values())
@@ -439,20 +452,30 @@ def execute(idata__):
 		if (cu["ResultSrc"] == "01"):
 			if k["A3"] == "00010":
 				registers[k["A3"]] = registers[k["A3"]] - ReadValue + 380 #x2 is stack pointer register
+			elif k["A3"] == "00000":
+					registers[k["A3"]] = 0
 			else:
 				registers[k["A3"]] = ReadValue
 
 		elif cu["ResultSrc"] == "00":
 			if k["A3"] == "00010":
 				registers[k["A3"]] = registers[k["A3"]] - int(ALUResult) + 380 #x2 is stack pointer register
+			elif k["A3"] == "00000":
+					registers[k["A3"]] = 0
 			else:
 				registers[k["A3"]] = int(ALUResult)
 		
 		elif cu["ResultSrc"] == "10":
-			registers[k["A3"]] = pc + 4
+			if k["A3"] == "00000":
+				registers[k["A3"]] = 0
+			else:
+				registers[k["A3"]] = pc + 4
 		
 		elif cu["ResultSrc"] == "11":
-			registers[k["A3"]] = pc + 4
+			if k["A3"] == "00000":
+				registers[k["A3"]] = 0
+			else:
+				registers[k["A3"]] = pc + 4
 
 	# print()
 	#---------------------------------------------------------------------------
