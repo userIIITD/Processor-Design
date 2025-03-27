@@ -225,11 +225,11 @@ def data_memory(index, memory, rs1, rs2, op, memWrite, value=0):
 
 	if (op == "0000011"): #load instruction
 		ReadValue = memory[(rs1 + index) - 65536]
-		print("MemIndex : ", (rs1 + index) - 65536)
+		# print("MemIndex : ", (rs1 + index) - 65536)
 	
 	if(memWrite == "1"): #store instruction
 		memory[(rs1 + index) - 65536] = rs2
-		print("MemIndex : ", (rs1 + index) - 65536)
+		# print("MemIndex : ", (rs1 + index) - 65536)
 	
 def stack_memory(index):
 	global ReadValue, Stack_memory
@@ -320,15 +320,15 @@ def stack_memory(index):
 
 def execute(idata__):
 	PC(idata__)
-	print(dict_instructions)
+	# print(dict_instructions)
 	global RD1, RD2, RegWrite, MemWrite, pc, zero,register_after_inst, ReadValue
 	reset() #resets values in registers before reading a new file
 
 	while dict_instructions[pc] != "00000000000000000000000001100011": #Halting instruction
-		print(dict_instructions[pc])
+		# print(dict_instructions[pc])
 		zero = False
-		print("Current PC : ", pc)
-		print(registers)
+		# print("Current PC : ", pc)
+		# print(registers)
 		RD1, RD2, RegWrite, MemWrite = 0, 0, 0, 0 #reinitialises every variable
 		k = Instruction_Memory(dict_instructions[pc])
 		if (k["op"] == "1100011"): #b-type condition checking
@@ -347,29 +347,29 @@ def execute(idata__):
 					zero = True
 				else:
 					zero = False
-		print(k)
+		# print(k)
 		cu = control_unit(k["op"], k["func3"], k["func7"])
-		print(cu)
+		# print(cu)
 		rf = register_file(k["A1"], k["A2"], k["A3"], ReadValue, RegWrite)
 		ex = extend(k["Extend"], cu["ImmSrc"])
-		print("immExt", immExt, signed(immExt))
+		# print("immExt", immExt, signed(immExt))
 
 		# if cu["ALUSrc"] == "1":
 		# 	aluin = int(immExt, 2) #might have error 
 		# elif cu["ALUSrc"] == "0":
 		# 	aluin = RD2
 		alu = ALU(RD1, 0, cu["ALUControl"], cu["ALUSrc"]) #SrcB is set to 0 but the value is decided in the function
-		print("alucont", cu["ALUControl"])
-		print(alu)
-		print("ALUResult :", ALUResult)
-		print("ALUResult type:", type(ALUResult))
+		# print("alucont", cu["ALUControl"])
+		# print(alu)
+		# print("ALUResult :", ALUResult)
+		# print("ALUResult type:", type(ALUResult))
 
 		if (k['A1'] == "00010"):
 			dm = stack_memory(registers["00010"])
 		else:
 			dm = data_memory(int(immExt, 2)//4, Data_memory, registers[k["A1"]], registers[k["A2"]], k["op"], cu["MemWrite"], RD2)
-		print(Data_memory)
-		print("Value read:", ReadValue)
+		# print(Data_memory)
+		# print("Value read:", ReadValue)
 		# Upgrading registers with values
 		if (cu["RegWrite"] == "1"):
 			if (cu["ResultSrc"] == "01"): #reading from immediate
@@ -392,7 +392,7 @@ def execute(idata__):
 			elif cu["ResultSrc"] == "10": #jal and jalr
 				registers[k["A3"]] = pc + 4
 
-		print()
+		# print()
 		PCNext(cu["PCSrc"], k["op"])
 		register_value=list(registers.values())
 		for i in range(len(register_value)):
@@ -405,8 +405,8 @@ def execute(idata__):
 	#---------------------------------------------------------------------------
 	# print(dict_instructions[pc])
 	zero = False
-	print("Current PC : ", pc)
-	print(registers)
+	# print("Current PC : ", pc)
+	# print(registers)
 	RD1, RD2, RegWrite, MemWrite = 0, 0, 0, 0 #reinitialises every variable
 	k = Instruction_Memory(dict_instructions[pc])
 	if (k["op"] == "1100011"): #b-type condition checking
@@ -425,22 +425,22 @@ def execute(idata__):
 				zero = True
 			else:
 				zero = False
-	print(k)
+	# print(k)
 	cu = control_unit(k["op"], k["func3"], k["func7"])
-	print(cu)
+	# print(cu)
 	rf = register_file(k["A1"], k["A2"], k["A3"], ReadValue, RegWrite)
 	ex = extend(k["Extend"], cu["ImmSrc"])
-	print("immExt", immExt, signed(immExt))
+	# print("immExt", immExt, signed(immExt))
 
 	# if cu["ALUSrc"] == "1":
 	# 	aluin = int(immExt, 2) #might have error 
 	# elif cu["ALUSrc"] == "0":
 	# 	aluin = RD2
 	alu = ALU(RD1, 0, cu["ALUControl"], cu["ALUSrc"]) #SrcB is set to 0 but the value is decided in the function
-	print("alucont", cu["ALUControl"])
-	print(alu)
-	print("ALUResult :", ALUResult)
-	print("ALUResult type:", type(ALUResult))
+	# print("alucont", cu["ALUControl"])
+	# print(alu)
+	# print("ALUResult :", ALUResult)
+	# print("ALUResult type:", type(ALUResult))
 
 	if (k['A1'] == "00010"):
 		dm = stack_memory(registers["00010"])
@@ -471,7 +471,7 @@ def execute(idata__):
 		elif cu["ResultSrc"] == "11":
 			registers[k["A3"]] = pc + 4
 
-	print()
+	# print()
 	PCNext(cu["PCSrc"], k["op"])
 	#---------------------------------------------------------------------------
 
