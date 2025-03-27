@@ -367,7 +367,7 @@ def execute(idata__):
 		if (k['A1'] == "00010"):
 			dm = stack_memory(registers["00010"])
 		else:
-			dm = data_memory(int(immExt), Data_memory, registers[k["A1"]], registers[k["A2"]], k["op"], cu["MemWrite"], RD2)
+			dm = data_memory(int(immExt, 2)//4, Data_memory, registers[k["A1"]], registers[k["A2"]], k["op"], cu["MemWrite"], RD2)
 		print(Data_memory)
 		print("Value read:", ReadValue)
 		# Upgrading registers with values
@@ -446,7 +446,7 @@ def execute(idata__):
 		dm = stack_memory(registers["00010"])
 		# print("stack_mem location :", registers["00010"] )
 	else:
-		dm = data_memory(int(immExt), Data_memory, k["A1"], k["A2"], k["op"], cu["MemWrite"], RD2)
+		dm = data_memory(int(immExt, 2)//4, Data_memory, registers[k["A1"]], registers[k["A2"]], k["op"], cu["MemWrite"], RD2)
 
 	if (cu["RegWrite"] == "1"):
 		if (cu["ResultSrc"] == "01"):
