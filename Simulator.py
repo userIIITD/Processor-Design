@@ -398,9 +398,9 @@ def execute(idata__):
 		for i in range(len(register_value)):
 			register_value[i]=int_to_binary(register_value[i],32)
 		binary_pc=int_to_binary(pc,32)
-		register_after_inst.append([pc,register_value])
+		register_after_inst.append([binary_pc,register_value])
 		# print(binary_pc)
-		pc_values.append(pc+4)
+		pc_values.append(pc)
 	
 	#---------------------------------------------------------------------------
 	# print(dict_instructions[pc])
@@ -478,11 +478,11 @@ def execute(idata__):
 	register_value=list(registers.values())
 	for i in range(len(register_value)):
 		register_value[i]=int_to_binary(register_value[i],32)
-	binary_pc=int_to_binary(pc+4,32)
-	register_after_inst.append([pc+4,register_value])
+	binary_pc=int_to_binary(pc,32)
+	register_after_inst.append([binary_pc,register_value])
 	pc=0
 
-pc_values.append(pc+4)
+pc_values.append(pc)
 
 #---------------------------------------------SEPARATING FILE HANDLING FROM MAIN PROGRAM---------------------------------------------
 # execute(idata__)
