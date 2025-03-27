@@ -322,6 +322,8 @@ def execute(idata__):
 	PC(idata__)
 	# print(dict_instructions)
 	global RD1, RD2, RegWrite, MemWrite, pc, zero,register_after_inst, ReadValue
+	Data_memory=[0]*128 #starts from 65536 and ends at 65663(included)
+	Stack_memory = [0]*128 #starts from 256 and ends at 383(included)
 	reset() #resets values in registers before reading a new file
 
 	while dict_instructions[pc] != "00000000000000000000000001100011": #Halting instruction
