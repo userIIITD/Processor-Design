@@ -1,5 +1,7 @@
+
 import os
 import time
+
 #Global Variables
 RD1 = 0
 RD2 = 0
@@ -29,118 +31,136 @@ def reset():
 	registers["00010"] = 380
 
 def int_to_binary(num, bit):
-    return format(num & (2**bit - 1), f"0{bit}b")
+    try:
+        return format(num & (2**bit - 1), f"0{bit}b")
+    except (ValueError, TypeError) as e:
+        raise ValueError(f"Invalid number conversion: {e}")
 
 def control_unit(opcode, funct3, funct7):
 	global zero
 	signals = {"PCSrc": "0", "ResultSrc": "XX", "MemWrite": "0", "ALUControl": "000", "ALUSrc": "0", "ImmSrc": "00", "RegWrite": "0"}
-	
-	if opcode == "0110011": #R-type
-		signals["RegWrite"] = "1"
-		signals["ResultSrc"] = "00"
-		if funct7 == "1":
+	if not all(isinstance(x, str) for x in [opcode, funct3, funct7]):
+		raise ValueError("Control unit inputs must be strings")
+	if len(opcode) != 7 or len(funct3) != 3 or len(funct7) != 1:
+		raise ValueError("Invalid opcode/funct length")
+	try:
+		if opcode == "0110011": #R-type
+			signals["RegWrite"] = "1"
+			signals["ResultSrc"] = "00"
+			if funct7 == "1":
+				if funct3 == "000":
+					signals["ALUControl"] = "001" #subtract
+			elif funct7 == "0":
+				if funct3 == "000":
+					signals["ALUControl"] = "000" #add
+				elif funct3 == "111":
+					signals["ALUControl"] = "010" #and
+				elif funct3 == "110":
+					signals["ALUControl"] = "011" #or
+				elif funct3 == "010":
+					signals["ALUControl"] = "101" #SLT
+				elif funct3 == "101":
+					signals["ALUControl"] = "111" #SRL #111 is added by me and not real value
+
+		elif opcode == "0010011":  #addi
+			signals["ALUSrc"] = "1"
+			signals["RegWrite"] = "1"
+			signals["ResultSrc"] = "12"
+
+			# if funct3 == "000":
+			signals["ALUControl"] = "000"
+			# elif funct3 == "110":
+			# 	signals["ALUControl"] = "011"
+			# elif funct3 == "111":
+			# 	signals["ALUControl"] = "010"
+
+		elif opcode == "0000011":  #LW
+			signals["ResultSrc"] = "13"
+			signals["ALUSrc"] = "1"
+			signals["RegWrite"] = "1"
+			# signals["PCSrc"] = "1"
+
+		elif opcode == "0100011":  #SW
+			signals["MemWrite"] = "1"
+			signals["ALUControl"] = "010"
+			signals["ALUSrc"] = "1"
+			signals["ImmSrc"] = "01"
+
+		elif opcode == "1100011":  #Branch
+			signals["ALUControl"] = "001"
+			signals["ImmSrc"] = "10"
+			signals["ResultSrc"] = "00"
+
 			if funct3 == "000":
-				signals["ALUControl"] = "001" #subtract
-		elif funct7 == "0":
-			if funct3 == "000":
-				signals["ALUControl"] = "000" #add
-			elif funct3 == "111":
-				signals["ALUControl"] = "010" #and
-			elif funct3 == "110":
-				signals["ALUControl"] = "011" #or
-			elif funct3 == "010":
-				signals["ALUControl"] = "101" #SLT
-			elif funct3 == "101":
-				signals["ALUControl"] = "111" #SRL #111 is added by me and not real value
+				if zero == True:
+					signals["PCSrc"] = "1"
+				else:
+					signals["PCSrc"] = "0"
 
-	elif opcode == "0010011":  #addi
-		signals["ALUSrc"] = "1"
-		signals["RegWrite"] = "1"
-		signals["ResultSrc"] = "12"
+			elif funct3 == "001":
+				if zero == True:
+					signals["PCSrc"] = "1"
+				else:
+					signals["PCSrc"] = "0"
+			
+			elif funct3 == "100":
+				if zero == True:
+					signals["PCSrc"] = "1"
+				else:
+					signals["PCSrc"] = "0"
 
-		# if funct3 == "000":
-		signals["ALUControl"] = "000"
-		# elif funct3 == "110":
-		# 	signals["ALUControl"] = "011"
-		# elif funct3 == "111":
-		# 	signals["ALUControl"] = "010"
-
-	elif opcode == "0000011":  #LW
-		signals["ResultSrc"] = "13"
-		signals["ALUSrc"] = "1"
-		signals["RegWrite"] = "1"
-		# signals["PCSrc"] = "1"
-
-	elif opcode == "0100011":  #SW
-		signals["MemWrite"] = "1"
-		signals["ALUControl"] = "010"
-		signals["ALUSrc"] = "1"
-		signals["ImmSrc"] = "01"
-
-	elif opcode == "1100011":  #Branch
-		signals["ALUControl"] = "001"
-		signals["ImmSrc"] = "10"
-		signals["ResultSrc"] = "00"
-
-		if funct3 == "000":
-			if zero == True:
-				signals["PCSrc"] = "1"
-			else:
-				signals["PCSrc"] = "0"
-
-		elif funct3 == "001":
-			if zero == True:
-				signals["PCSrc"] = "1"
-			else:
-				signals["PCSrc"] = "0"
+		elif opcode == "1101111":  #j-type
+			signals["RegWrite"] = "1"
+			signals["PCSrc"] = "1"
+			signals["ImmSrc"] = "11"
+			signals["ResultSrc"] = "10"
+			signals["ALUSrc"] = "1"
 		
-		elif funct3 == "100":
-			if zero == True:
-				signals["PCSrc"] = "1"
-			else:
-				signals["PCSrc"] = "0"
-
-	elif opcode == "1101111":  #j-type
-		signals["RegWrite"] = "1"
-		signals["PCSrc"] = "1"
-		signals["ImmSrc"] = "11"
-		signals["ResultSrc"] = "10"
-		signals["ALUSrc"] = "1"
-	
-	elif opcode == "1100111":  #jalr-type
-		signals["RegWrite"] = "1"
-		signals["PCSrc"] = "1"
-		signals["ImmSrc"] = "00"
-		signals["ResultSrc"] = "11"
-		signals["ALUSrc"] = "1"
+		elif opcode == "1100111":  #jalr-type
+			signals["RegWrite"] = "1"
+			signals["PCSrc"] = "1"
+			signals["ImmSrc"] = "00"
+			signals["ResultSrc"] = "11"
+			signals["ALUSrc"] = "1"
+	except Exception as e:
+		raise ValueError(f"Control unit error: {e}")
 
 	return signals
 
 def Instruction_Memory(inst):
-	instr={"op":inst[25:32],"func3":inst[17:20],"func7":inst[1],"A1":inst[12:17],"A2":inst[7:12],"A3":inst[20:25],"Extend":inst[0:25]}
-	return instr
-# 00000000011110100000101000010011
+	if not isinstance(inst, str) or len(inst) != 32:
+		raise ValueError("Instruction must be a 32-bit binary string")
+	try:
+		return {"op": inst[25:32],"func3": inst[17:20],"func7": inst[1],"A1": inst[12:17],"A2": inst[7:12],"A3": inst[20:25],"Extend": inst[0:25]}
+	except IndexError:
+		raise ValueError("Invalid instruction format")
+	
 def PCNext(PCSrc,x6,op="X"):
-	global immExt
-	global pc
-	if PCSrc=="1":
-		if (op == "1101111"):
-			pc=pc+signed(immExt)
-			pc = pc & ~1
-		elif (op == "1100111"): #jalr
-			pc = x6 + signed(immExt)
-			pc = pc & ~1
-		else:
-			pc = pc + signed(immExt)
-		
-		if pc % 4 != 0:
-			pc -= pc % 4
-	elif PCSrc=="0":
-		pc=pc+4
-	# return PC
+	global pc,immExt
+	if not isinstance(PCSrc, str) or PCSrc not in ["0", "1"]:
+		raise ValueError("PCSrc must be '0' or '1'")
+	try:
+		if PCSrc=="1":
+			if (op == "1101111"):
+				pc=pc+signed(immExt)
+				pc = pc & ~1
+			elif (op == "1100111"): #jalr
+				pc = x6 + signed(immExt)
+				pc = pc & ~1
+			else:
+				pc = pc + signed(immExt)
+			
+			if pc % 4 != 0:
+				pc -= pc % 4
+		elif PCSrc=="0":
+			pc=pc+4
+	except Exception as e:
+		raise ValueError(f"PC update error: {e}")
 
 def PC(instruction):
 	global dict_instructions
+	if not isinstance(instruction, list):
+		raise ValueError("Instructions must be provided as a list")
 	PC = 0 #initialising PC with zero
 	for i in instruction:
 		dict_instructions[PC] = i
@@ -157,6 +177,7 @@ def mux(input1,input2,input3,ch1):
 		
 def signed(inp):
 	#signed integer representation of binary
+	
 	if (inp[0] == '1'): #represents 2's complement
 		new = ""
 		for i in inp: #flip the bits
@@ -169,58 +190,75 @@ def signed(inp):
 		
 def register_file(A1, A2, A3, WD3, WE3, clk=True):
 	global RD1, RD2, registers
-	RD1 = registers[A1]
-	RD2 = registers[A2]
-	
-	if (WE3 == 1): registers[A3] = int(WD3, 2)
-
+	try:
+		RD1 = registers[A1]
+		RD2 = registers[A2]
+		
+		if (WE3 == 1): registers[A3] = int(WD3, 2)
+	except Exception as e:
+		raise ValueError(f"Register file error: {e}")
 def extend(inp, immSrc):
 	#31:7
 	# inp += '0'
 	global immExt
-	if (immSrc == "00"): #l instruction
-		immExt = inp[0:12]
-	elif (immSrc == "01"): #s instruction
-		immExt = inp[0:7] + inp[20::]
-	elif (immSrc == "10"): #b instruction
-		# immExt = inp[0] + inp[1:8] + inp[19:23] + inp[23] + '0'
-		immExt = inp[0] + inp[24] + inp[1:7] + inp[20:24] + '0' #changes inp[20:24] during error handling
-	elif (immSrc == "11"): #j instruction
-		inp = inp[0:20]
-		# immExt = inp[0] + inp[12:19] + inp[12] + inp[1:10] + '0'
-		immExt = inp[0] + inp[12:20] + inp[11] + inp[1:11] + '0'
+	if not isinstance(inp, str) or len(inp) < 1:
+		raise ValueError("Invalid input for immediate extension")
+	
+	if not isinstance(immSrc, str) or len(immSrc) != 2:
+		raise ValueError("ImmSrc must be 2-bit string")
+	try:
+		if (immSrc == "00"): #l instruction
+			immExt = inp[0:12]
+		elif (immSrc == "01"): #s instruction
+			immExt = inp[0:7] + inp[20::]
+		elif (immSrc == "10"): #b instruction
+			# immExt = inp[0] + inp[1:8] + inp[19:23] + inp[23] + '0'
+			immExt = inp[0] + inp[24] + inp[1:7] + inp[20:24] + '0' #changes inp[20:24] during error handling
+		elif (immSrc == "11"): #j instruction
+			inp = inp[0:20]
+			# immExt = inp[0] + inp[12:19] + inp[12] + inp[1:10] + '0'
+			immExt = inp[0] + inp[12:20] + inp[11] + inp[1:11] + '0'
+	except Exception as e:
+		raise ValueError(f"Immediate extension error: {e}")
 
 
 def ALU(SrcA, SrcB, ALUCont, ALUSrc):
 	global immExt, ALUResult, zero
 	ALUResult = ""
+	if not isinstance(ALUCont, str) or len(ALUCont) != 3:
+		raise ValueError("ALUControl must be 3-bit string")
 	
-	if (ALUSrc == '0'): #choosing between RD2 and immExt
-		SrcB = int_to_binary(RD2, 32)
-	else:
-		SrcB = int_to_binary(abs(signed(immExt)), 32) #
-	# print("sources : ", SrcA, SrcB)
-	if (ALUCont == "000"): #add
-		ALUResult = str(SrcA + signed(SrcB))
-	elif (ALUCont == "001"): #subtract
-		ALUResult = str(SrcA - signed(SrcB))
-	elif (ALUCont == "010"): #bitwise_and
-		ALUResult = ""
-		bin_A = int_to_binary(SrcA, 32)
-		for i, j in zip(bin_A, SrcB):
-			ALUResult += str(int(i, 2) & int(j, 2))
-		ALUResult = str(int(ALUResult, 2))
-	elif (ALUCont == "011"): #bitwise_or
-		ALUResult = ""
-		bin_A = int_to_binary(SrcA, 32)
-		for i, j in zip(bin_A, SrcB):
-			ALUResult += str(int(i, 2) | int(j, 2))
-		ALUResult = str(int(ALUResult, 2))
-	elif (ALUCont == "101"): #set less than
-		if (SrcA < signed(SrcB)): ALUResult = '1'
-		else: ALUResult = '0'
-	elif (ALUCont == "111"): #shift right logical
-		ALUResult = str(SrcA >> int(SrcB, 2))
+	if not isinstance(ALUSrc, str) or ALUSrc not in ['0', '1']:
+		raise ValueError("ALUSrc must be '0' or '1'")
+	try:
+		if (ALUSrc == '0'): #choosing between RD2 and immExt
+			SrcB = int_to_binary(RD2, 32)
+		else:
+			SrcB = int_to_binary(abs(signed(immExt)), 32) #
+		# print("sources : ", SrcA, SrcB)
+		if (ALUCont == "000"): #add
+			ALUResult = str(SrcA + signed(SrcB))
+		elif (ALUCont == "001"): #subtract
+			ALUResult = str(SrcA - signed(SrcB))
+		elif (ALUCont == "010"): #bitwise_and
+			ALUResult = ""
+			bin_A = int_to_binary(SrcA, 32)
+			for i, j in zip(bin_A, SrcB):
+				ALUResult += str(int(i, 2) & int(j, 2))
+			ALUResult = str(int(ALUResult, 2))
+		elif (ALUCont == "011"): #bitwise_or
+			ALUResult = ""
+			bin_A = int_to_binary(SrcA, 32)
+			for i, j in zip(bin_A, SrcB):
+				ALUResult += str(int(i, 2) | int(j, 2))
+			ALUResult = str(int(ALUResult, 2))
+		elif (ALUCont == "101"): #set less than
+			if (SrcA < signed(SrcB)): ALUResult = '1'
+			else: ALUResult = '0'
+		elif (ALUCont == "111"): #shift right logical
+			ALUResult = str(SrcA >> int(SrcB, 2))
+	except Exception as e:
+		raise ValueError(f"ALU operation error: {e}")
 	# immExt = "" #initialise both to empty # LINE SHIFTED
 
 def data_memory(index, memory, rs1, rs2, op, memWrite, value=0):
