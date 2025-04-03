@@ -38,6 +38,7 @@ def control_unit(opcode, funct3, funct7):
 		raise ValueError("Control unit inputs must be strings")
 	if len(opcode) != 7 or len(funct3) != 3 or len(funct7) != 1:
 		raise ValueError("Invalid opcode/funct length")
+	
 	try:
 		if opcode == "0110011": #R-type
 			signals["RegWrite"] = "1"
@@ -61,19 +62,12 @@ def control_unit(opcode, funct3, funct7):
 			signals["ALUSrc"] = "1"
 			signals["RegWrite"] = "1"
 			signals["ResultSrc"] = "12"
-
-			# if funct3 == "000":
 			signals["ALUControl"] = "000"
-			# elif funct3 == "110":
-			# 	signals["ALUControl"] = "011"
-			# elif funct3 == "111":
-			# 	signals["ALUControl"] = "010"
 
 		elif opcode == "0000011":  #LW
 			signals["ResultSrc"] = "13"
 			signals["ALUSrc"] = "1"
 			signals["RegWrite"] = "1"
-			# signals["PCSrc"] = "1"
 
 		elif opcode == "0100011":  #SW
 			signals["MemWrite"] = "1"
@@ -97,7 +91,7 @@ def control_unit(opcode, funct3, funct7):
 					signals["PCSrc"] = "1"
 				else:
 					signals["PCSrc"] = "0"
-			
+		
 			elif funct3 == "100":
 				if zero == True:
 					signals["PCSrc"] = "1"
@@ -110,29 +104,29 @@ def control_unit(opcode, funct3, funct7):
 			signals["ImmSrc"] = "11"
 			signals["ResultSrc"] = "10"
 			signals["ALUSrc"] = "1"
-		
+	
 		elif opcode == "1100111":  #jalr-type
 			signals["RegWrite"] = "1"
 			signals["PCSrc"] = "1"
 			signals["ImmSrc"] = "00"
 			signals["ResultSrc"] = "11"
 			signals["ALUSrc"] = "1"
+	
 	except Exception as e:
 		raise ValueError(f"Control unit error: {e}")
+
 	return signals
-
+	
 def Instruction_Memory(inst):
-	if not isinstance(inst, str) or len(inst) != 32:
-		raise ValueError("Instruction must be a 32-bit binary string")
+	inst = str(inst)
 	try:
-		return {"op": inst[25:32],"func3": inst[17:20],"func7": inst[1],"A1": inst[12:17],"A2": inst[7:12],"A3": inst[20:25],"Extend": inst[0:25]}
+		return {"op":inst[25:32],"func3":inst[17:20],"func7":inst[1],"A1":inst[12:17],"A2":inst[7:12],"A3":inst[20:25],"Extend":inst[0:25]}
 	except IndexError:
-		raise ValueError("Invalid instruction format")
-
+		raise ValueError("Invalid instruction")
+		
 def PCNext(PCSrc,x6,op="X"):
-	global pc,immExt
-	if not isinstance(PCSrc, str) or PCSrc not in ["0", "1"]:
-		raise ValueError("PCSrc must be '0' or '1'")
+	global immExt
+	global pc
 	try:
 		if PCSrc=="1":
 			if (op == "1101111"):
@@ -148,9 +142,13 @@ def PCNext(PCSrc,x6,op="X"):
 				pc -= pc % 4
 		elif PCSrc=="0":
 			pc=pc+4
+		
+		else:
+			raise ValueError("Invalid PCSrc value, it must be \"0\" or \"1\"")
+	
 	except Exception as e:
 		raise ValueError(f"PC update error: {e}")
-
+		
 def PC(instruction):
 	global dict_instructions
 	PC = 0 #initialising PC with zero
@@ -187,6 +185,7 @@ def register_file(A1, A2, A3, WD3, WE3, clk=True):
 		if (WE3 == 1): registers[A3] = int(WD3, 2)
 	except Exception as e:
 		raise ValueError(f"Register file error: {e}")
+		
 def extend(inp, immSrc):
 	#31:7
 	global immExt
@@ -195,25 +194,24 @@ def extend(inp, immSrc):
 	
 	if not isinstance(immSrc, str) or len(immSrc) != 2:
 		raise ValueError("ImmSrc must be 2-bit string")
+	
 	try:
 		if (immSrc == "00"): #l instruction
 			immExt = inp[0:12]
 		elif (immSrc == "01"): #s instruction
 			immExt = inp[0:7] + inp[20::]
 		elif (immSrc == "10"): #b instruction
-			# immExt = inp[0] + inp[1:8] + inp[19:23] + inp[23] + '0'
 			immExt = inp[0] + inp[24] + inp[1:7] + inp[20:24] + '0' #changes inp[20:24] during error handling
 		elif (immSrc == "11"): #j instruction
 			inp = inp[0:20]
-			# immExt = inp[0] + inp[12:19] + inp[12] + inp[1:10] + '0'
 			immExt = inp[0] + inp[12:20] + inp[11] + inp[1:11] + '0'
 	except Exception as e:
 		raise ValueError(f"Immediate extension error: {e}")
-
+		
 def ALU(SrcA, SrcB, ALUCont, ALUSrc):
 	global immExt, ALUResult, zero
 	ALUResult = ""
-	
+
 	if not isinstance(ALUCont, str) or len(ALUCont) != 3:
 		raise ValueError("ALUControl must be 3-bit string")
 	
@@ -246,20 +244,33 @@ def ALU(SrcA, SrcB, ALUCont, ALUSrc):
 			else: ALUResult = '0'
 		elif (ALUCont == "111"): #shift right logical
 			ALUResult = str(SrcA >> int(SrcB, 2))
+		# immExt = "" #initialise both to empty # LINE SHIFTED
 	except Exception as e:
 		raise ValueError(f"ALU operation error: {e}")
-	# immExt = "" #initialise both to empty # LINE SHIFTED
-
+		
 def data_memory(index, memory, rs1, rs2, op, memWrite, value=0):
 	global ReadValue, Data_memory
 
-	if (op == "0000011"): #load instruction
-		ReadValue = Data_memory[rs1 + index]
+	if op not in ["0000011", "0100011"]:
+		raise ValueError(f"Invalid operation code: {op}")
 	
-	if(memWrite == "1"): #store instruction
-		Data_memory[rs1 + index] = rs2
+	if memWrite not in ["0", "1"]:
+		raise ValueError(f"Invalid memWrite flag: {memWrite}")
+	
+	try:
+		if (op == "0000011"): #load instruction
+			ReadValue = Data_memory[rs1 + index]
+		
+		if(memWrite == "1"): #store instruction
+			Data_memory[rs1 + index] = rs2
+
+	except Exception as e:
+		raise TypeError("Index and rs1 must be integer")
 
 def execute(idata__):
+	if "00000000000000000000000001100011" not in idata__:
+		print("Missing halt statement, program may never terminate")
+		return
 	PC(idata__)
 	global RD1, RD2, RegWrite, MemWrite, pc, zero,register_after_inst, ReadValue, Data_memory, immExt
 	reset() #resets values in registers before reading a new file
