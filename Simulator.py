@@ -9,7 +9,7 @@ RegWrite = 0
 RegReturn = 0
 MemWrite = 0
 pc = 0
-Data_memory = {256: 0, 257: 0, 258: 0, 259: 0, 260: 0, 261: 0, 262: 0, 263: 0, 264: 0, 265: 0, 266: 0, 267: 0, 268: 0, 269: 0, 270: 0, 271: 0, 272: 0, 273: 0, 274: 0, 275: 0, 276: 0, 277: 0, 278: 0, 279: 0, 280: 0, 281: 0, 282: 0, 283: 0, 284: 0, 285: 0, 286: 0, 287: 0, 288: 0, 289: 0, 290: 0, 291: 0, 292: 0, 293: 0, 294: 0, 295: 0, 296: 0, 297: 0, 298: 0, 299: 0, 300: 0, 301: 0, 302: 0, 303: 0, 304: 0, 305: 0, 306: 0, 307: 0, 308: 0, 309: 0, 310: 0, 311: 0, 312: 0, 313: 0, 314: 0, 315: 0, 316: 0, 317: 0, 318: 0, 319: 0, 320: 0, 321: 0, 322: 0, 323: 0, 324: 0, 325: 0, 326: 0, 327: 0, 328: 0, 329: 0, 330: 0, 331: 0, 332: 0, 333: 0, 334: 0, 335: 0, 336: 0, 337: 0, 338: 0, 339: 0, 340: 0, 341: 0, 342: 0, 343: 0, 344: 0, 345: 0, 346: 0, 347: 0, 348: 0, 349: 0, 350: 0, 351: 0, 352: 0, 353: 0, 354: 0, 355: 0, 356: 0, 357: 0, 358: 0, 359: 0, 360: 0, 361: 0, 362: 0, 363: 0, 364: 0, 365: 0, 366: 0, 367: 0, 368: 0, 369: 0, 370: 0, 371: 0, 372: 0, 373: 0, 374: 0, 375: 0, 376: 0, 377: 0, 378: 0, 379: 0, 380: 0, 381: 0, 382: 0, 383: 0, 65536: 0, 65537: 0, 65538: 0, 65539: 0, 65540: 0, 65541: 0, 65542: 0, 65543: 0, 65544: 0, 65545: 0, 65546: 0, 65547: 0, 65548: 0, 65549: 0, 65550: 0, 65551: 0, 65552: 0, 65553: 0, 65554: 0, 65555: 0, 65556: 0, 65557: 0, 65558: 0, 65559: 0, 65560: 0, 65561: 0, 65562: 0, 65563: 0, 65564: 0, 65565: 0, 65566: 0, 65567: 0, 65568: 0, 65569: 0, 65570: 0, 65571: 0, 65572: 0, 65573: 0, 65574: 0, 65575: 0, 65576: 0, 65577: 0, 65578: 0, 65579: 0, 65580: 0, 65581: 0, 65582: 0, 65583: 0, 65584: 0, 65585: 0, 65586: 0, 65587: 0, 65588: 0, 65589: 0, 65590: 0, 65591: 0, 65592: 0, 65593: 0, 65594: 0, 65595: 0, 65596: 0, 65597: 0, 65598: 0, 65599: 0, 65600: 0, 65601: 0, 65602: 0, 65603: 0, 65604: 0, 65605: 0, 65606: 0, 65607: 0, 65608: 0, 65609: 0, 65610: 0, 65611: 0, 65612: 0, 65613: 0, 65614: 0, 65615: 0, 65616: 0, 65617: 0, 65618: 0, 65619: 0, 65620: 0, 65621: 0, 65622: 0, 65623: 0, 65624: 0, 65625: 0, 65626: 0, 65627: 0, 65628: 0, 65629: 0, 65630: 0, 65631: 0, 65632: 0, 65633: 0, 65634: 0, 65635: 0, 65636: 0, 65637: 0, 65638: 0, 65639: 0, 65640: 0, 65641: 0, 65642: 0, 65643: 0, 65644: 0, 65645: 0, 65646: 0, 65647: 0, 65648: 0, 65649: 0, 65650: 0, 65651: 0, 65652: 0, 65653: 0, 65654: 0, 65655: 0, 65656: 0, 65657: 0, 65658: 0, 65659: 0, 65660: 0, 65661: 0, 65662: 0, 65663: 0}
+pc_update_flag = False
 
 zero = False #flag for b-type instruction
 dict_instructions = {}
@@ -33,11 +33,9 @@ def int_to_binary(num, bit):
 def control_unit(opcode, funct3, funct7):
 	global zero
 	signals = {"PCSrc": "0", "ResultSrc": "XX", "MemWrite": "0", "ALUControl": "000", "ALUSrc": "0", "ImmSrc": "00", "RegWrite": "0"}
-	
-	if not all(isinstance(x, str) for x in [opcode, funct3, funct7]):
-		raise ValueError("Control unit inputs must be strings")
+
 	if len(opcode) != 7 or len(funct3) != 3 or len(funct7) != 1:
-		raise ValueError("Invalid opcode/funct length")
+		print("Invalid opcode/funct length")
 	
 	try:
 		if opcode == "0110011": #R-type
@@ -113,19 +111,20 @@ def control_unit(opcode, funct3, funct7):
 			signals["ALUSrc"] = "1"
 	
 	except Exception as e:
-		raise ValueError(f"Control unit error: {e}")
+		print(f"Control unit error: {e}")
 
 	return signals
-	
+
 def Instruction_Memory(inst):
 	inst = str(inst)
 	try:
 		return {"op":inst[25:32],"func3":inst[17:20],"func7":inst[1],"A1":inst[12:17],"A2":inst[7:12],"A3":inst[20:25],"Extend":inst[0:25]}
 	except IndexError:
-		raise ValueError("Invalid instruction")
-		
+		print("Invalid instruction")
+
+
 def PCNext(PCSrc,x6,op="X"):
-	global immExt
+	global immExt, pc_update_flag
 	global pc
 	try:
 		if PCSrc=="1":
@@ -140,15 +139,16 @@ def PCNext(PCSrc,x6,op="X"):
 			
 			if pc % 4 != 0:
 				pc -= pc % 4
+			return True
 		elif PCSrc=="0":
 			pc=pc+4
-		
-		else:
-			raise ValueError("Invalid PCSrc value, it must be \"0\" or \"1\"")
+			return True
 	
 	except Exception as e:
-		raise ValueError(f"PC update error: {e}")
-		
+		print(f"PC update error: {e}")
+		return False
+
+
 def PC(instruction):
 	global dict_instructions
 	PC = 0 #initialising PC with zero
@@ -169,6 +169,8 @@ def signed(inp):
 	if (inp[0] == '1'): #represents 2's complement
 		new = ""
 		for i in inp: #flip the bits
+			if i not in ["1", "0"]:
+				print(f"Invalid binary string: {inp}")
 			if i == '1':
 				new += '0'
 			else: new += '1'
@@ -184,16 +186,16 @@ def register_file(A1, A2, A3, WD3, WE3, clk=True):
 		
 		if (WE3 == 1): registers[A3] = int(WD3, 2)
 	except Exception as e:
-		raise ValueError(f"Register file error: {e}")
-		
+		print(f"Register file error: {e}")
+
 def extend(inp, immSrc):
 	#31:7
 	global immExt
 	if not isinstance(inp, str) or len(inp) < 1:
-		raise ValueError("Invalid input for immediate extension")
+		print("Invalid input for immediate extension")
 	
 	if not isinstance(immSrc, str) or len(immSrc) != 2:
-		raise ValueError("ImmSrc must be 2-bit string")
+		print("ImmSrc must be 2-bit string")
 	
 	try:
 		if (immSrc == "00"): #l instruction
@@ -206,17 +208,17 @@ def extend(inp, immSrc):
 			inp = inp[0:20]
 			immExt = inp[0] + inp[12:20] + inp[11] + inp[1:11] + '0'
 	except Exception as e:
-		raise ValueError(f"Immediate extension error: {e}")
-		
+		print(f"Immediate extension error: {e}")
+
 def ALU(SrcA, SrcB, ALUCont, ALUSrc):
 	global immExt, ALUResult, zero
 	ALUResult = ""
 
 	if not isinstance(ALUCont, str) or len(ALUCont) != 3:
-		raise ValueError("ALUControl must be 3-bit string")
+		print("ALUControl must be 3-bit string")
 	
 	if not isinstance(ALUSrc, str) or ALUSrc not in ['0', '1']:
-		raise ValueError("ALUSrc must be '0' or '1'")
+		print("ALUSrc must be '0' or '1'")
 	try:
 		if (ALUSrc == '0'): #choosing between RD2 and immExt
 			SrcB = int_to_binary(RD2, 32)
@@ -246,189 +248,36 @@ def ALU(SrcA, SrcB, ALUCont, ALUSrc):
 			ALUResult = str(SrcA >> int(SrcB, 2))
 		# immExt = "" #initialise both to empty # LINE SHIFTED
 	except Exception as e:
-		raise ValueError(f"ALU operation error: {e}")
-		
-def data_memory(index, memory, rs1, rs2, op, memWrite, value=0):
+		print(f"ALU operation error: {e}")
+
+def data_memory(index, rs1, rs2, op, memWrite, file):
 	global ReadValue, Data_memory
-
-	if op not in ["0000011", "0100011"]:
-		raise ValueError(f"Invalid operation code: {op}")
-	
-	if memWrite not in ["0", "1"]:
-		raise ValueError(f"Invalid memWrite flag: {memWrite}")
-	
-	try:
-		if (op == "0000011"): #load instruction
+	if (op == "0000011"): #load instruction
+		if (index + rs1) in range(256, 384) or (index + rs1) in range(65536, 65664):
 			ReadValue = Data_memory[rs1 + index]
+		else:
+			print("Invalid memory location in", file)
 		
-		if(memWrite == "1"): #store instruction
+	if(memWrite == "1"): #store instruction
+		if (index + rs1) in range(256, 384) or (index + rs1) in range(65536, 65664):
 			Data_memory[rs1 + index] = rs2
+		else:
+			print("Invalid memory location in", file)
 
-	except Exception as e:
-		raise TypeError("Index and rs1 must be integer")
-
-def execute(idata__):
+def execute(idata__, file):
 	if "00000000000000000000000001100011" not in idata__:
-		print("Missing halt statement, program may never terminate")
+		print("Error: Halt missing in", file, "execution stopped by the simulator.")
 		return
+	
 	PC(idata__)
-	global RD1, RD2, RegWrite, MemWrite, pc, zero,register_after_inst, ReadValue, Data_memory, immExt
+	global RD1, RD2, RegWrite, MemWrite, pc, zero,register_after_inst, ReadValue, Data_memory, immExt, pc_update_flag
+	pc_update_flag = False
 	reset() #resets values in registers before reading a new file
-	while 1:
-		try:
-			if pc not in dict_instructions:
-				print(f"PC {pc} Not Found in instruction memory")
-				break
-			current_instruction=dict_instructions[pc]
-			if current_instruction=="00000000000000000000000001100011":
-				break
-			# time.sleep(1)
-		
-			zero=False
-			RD1,RD2,RegWrite,MemWrite,immExt=0,0,0,0,0
-			try:
-				k=Instruction_Memory(current_instruction)
-			except Exception as e:
-				print(f"Error decoding instruction at PC {pc}:{e}")
-				pc+=4
-				continue
-			if(k["op"]=="1100011"):
-				if k["A1"] not in registers or k["A2"] not in registers:
-					print(f"Invalid register access at PC {pc}")
-					pc+=4
-					continue
-				if (k["func3"] == "000"):
-					if (registers[k["A1"]] == registers[k["A2"]]):
-						zero = True
-					else:
-						zero = False
-				elif (k["func3"] == "001"):
-					if (registers[k["A1"]] != registers[k["A2"]]):
-						zero = True
-					else:
-						zero = False
-				elif (k["func3"] == "100"):
-					if (registers[k["A1"]] < registers[k["A2"]]):
-						zero = True
-					else:
-						zero = False
-				else:
-					print(f"Unsupported dunc3 {k['func3']} for branch at PC {pc}")
-					pc+=4
-					continue
-	
-			try:
-				cu = control_unit(k["op"], k["func3"], k["func7"])
-			except Exception as e:
-				print(f"Control unit error at PC {pc}: {e}")
-				pc+=4
-				continue
-		
-			try:
-				register_file(k["A1"], k["A2"], k["A3"], ReadValue, RegWrite)
-			except Exception as e:
-				print(f"Register file error at PC {pc}: {e}")
-				pc+=4
-				continue
-			try:
-				extend(k["Extend"], cu["ImmSrc"])
-			except Exception as e:
-				print(f"Immediate extension error at PC {pc}: {e}")
-				pc+=4
-				continue
-	
-			try:
-				alu=ALU(RD1, 0, cu["ALUControl"], cu["ALUSrc"])
-			except Exception as e:
-				print(f"ALU error at PC {pc}: {e}")
-				pc+=4
-				continue
-			
-			if k["op"]=="0000011" or k["op"]=="010011":
-				try:
-					dm = data_memory(int(immExt, 2)//4, Data_memory, registers[k["A1"]], registers[k["A2"]], k["op"], cu["MemWrite"], RD2)
-				except Exception as e:
-					print(f"Memory access error at PC {pc}: {e}")
-					pc+=4
-					continue
-			
-			if cu["RegWrite"]=="1":
-				try:
-					if (cu["ResultSrc"] == "01"): #reading from immediate
-						# if k["A3"] == "00010":
-							# registers[k["A3"]] = registers[k["A3"]] + signed(immExt) #x2 is stack pointer register
-							#registers[k["A3"]] - ReadValue + 380
-						if k["A3"] == "00000":
-							registers[k["A3"]] = 0
-						else:
-							registers[k["A3"]] = signed(immExt)
-			
-					elif (cu["ResultSrc"] == "12"): #reading from immediate
-						# if k["A3"] == "00010":
-							# registers[k["A3"]] = registers[k["A3"]] + signed(immExt) #x2 is stack pointer register
-							#registers[k["A3"]] - ReadValue + 380
-						if k["A3"] == "00000":
-							registers[k["A3"]] = 0
-						else:
-							registers[k["A3"]] = signed(immExt) + registers[k["A1"]]
 
-					elif cu["ResultSrc"] == "00": #reading from AluResult
-						# if k["A3"] == "00010":
-							# registers[k["A3"]] = - registers[k["A3"]] + int(ALUResult) + 380 #x2 is stack pointer register
-						if k["A3"] == "00000":
-							registers[k["A3"]] = 0
-						else:
-							registers[k["A3"]] = int(ALUResult)
-					
-					elif cu["ResultSrc"] == "13": #load
-						# if k["A3"] == "00010":
-							# registers[k["A3"]] = - registers[k["A3"]] + int(ALUResult) + 380 #x2 is stack pointer register
-						if k["A3"] == "00000":
-							registers[k["A3"]] = 0
-						else:
-							# print("Memory Read for load", int(ALUResult) + ReadValue)
-							registers[k["A3"]] = ReadValue
-
-					elif cu["ResultSrc"] == "10": #jal and jalr
-						if k["A3"] == "00000":
-							registers[k["A3"]] = 0
-						else:
-							registers[k["A3"]] = pc + 4
-					
-					elif cu["ResultSrc"] == "11": #jalr
-						if k["A3"] == "00000":
-							registers[k["A3"]] = 0
-						else:
-							registers[k["A3"]] = pc + 4
-				except Exception as e:
-					print(f"Register writeback error at PC {pc}: {e}")
-			
-			try:
-				PCNext(cu["PCSrc"], registers[k["A1"]], k["op"])
-			except Exception as e:
-				print(f"PC update error at PC {pc}: {e}")
-				pc+=4
-				continue
-			try:
-				register_value=list(registers.values())
-				for i in range(len(register_value)):
-					register_value[i]=int_to_binary(register_value[i],32)
-				binary_pc=int_to_binary(pc,32)
-				register_after_inst.append([binary_pc,register_value])
-				
-				pc_values.append(pc)
-			except Exception as e:
-				print(f"State capture error at PC {pc}: {e}")
-		except Exception as e:
-			print(f"Unexpected error at PC {pc}:{e}")
-			pc+=4
-			if (pc>=max(dict_instructions.keys(),default=0)+4):
-				break
-	try:
+	while dict_instructions[pc] != "00000000000000000000000001100011": #Halting instruction
 		
 		zero = False
-		
-		RD1, RD2, RegWrite, MemWrite = 0, 0, 0, 0 #reinitialises every variable
+		RD1, RD2, RegWrite, MemWrite, immExt = 0, 0, 0, 0, "" #reinitialises every variable
 		k = Instruction_Memory(dict_instructions[pc])
 		if (k["op"] == "1100011"): #b-type condition checking
 			if (k["func3"] == "000"):
@@ -446,80 +295,137 @@ def execute(idata__):
 					zero = True
 				else:
 					zero = False
-		
 		cu = control_unit(k["op"], k["func3"], k["func7"])
-		
-		rf = register_file(k["A1"], k["A2"], k["A3"], ReadValue, RegWrite)
-		ex = extend(k["Extend"], cu["ImmSrc"])
-		
+		register_file(k["A1"], k["A2"], k["A3"], ReadValue, RegWrite)
+		extend(k["Extend"], cu["ImmSrc"])
 
-		# if cu["ALUSrc"] == "1":
-		# 	aluin = int(immExt, 2) #might have error 
-		# elif cu["ALUSrc"] == "0":
-		# 	aluin = RD2
-		alu = ALU(RD1, 0, cu["ALUControl"], cu["ALUSrc"]) #SrcB is set to 0 but the value is decided in the function
-		
+		ALU(RD1, 0, cu["ALUControl"], cu["ALUSrc"]) #SrcB is set to 0 but the value is decided in the function
 
 		if (k["op"] == "0000011" or k["op"] == "0100011"):
-			dm = data_memory(int(immExt, 2)//4, Data_memory, registers[k["A1"]], registers[k["A2"]], k["op"], cu["MemWrite"], RD2)
+			data_memory(int(immExt, 2)//4, registers[k["A1"]], registers[k["A2"]], k["op"], cu["MemWrite"], file)
 
 		if (cu["RegWrite"] == "1"):
-			if (cu["ResultSrc"] == "01"):
-				# if k["A3"] == "00010":
-					# registers[k["A3"]] = registers[k["A3"]] + signed(immExt)#x2 is stack pointer register
+			if (cu["ResultSrc"] == "01"): #reading from immediate
 				if k["A3"] == "00000":
-						registers[k["A3"]] = 0
+					registers[k["A3"]] = 0
 				else:
 					registers[k["A3"]] = signed(immExt)
 			
-			if (cu["ResultSrc"] == "12"):
-				# if k["A3"] == "00010":
-					# registers[k["A3"]] = registers[k["A3"]] + signed(immExt)#x2 is stack pointer register
+			elif (cu["ResultSrc"] == "12"): #reading from immediate
 				if k["A3"] == "00000":
-						registers[k["A3"]] = 0
+					registers[k["A3"]] = 0
 				else:
 					registers[k["A3"]] = signed(immExt) + registers[k["A1"]]
 
-			elif cu["ResultSrc"] == "00":
-				# if k["A3"] == "00010":
-					# registers[k["A3"]] = - registers[k["A3"]] + int(ALUResult) + 380#x2 is stack pointer register
+			elif cu["ResultSrc"] == "00": #reading from AluResult
 				if k["A3"] == "00000":
-						registers[k["A3"]] = 0
+					registers[k["A3"]] = 0
 				else:
 					registers[k["A3"]] = int(ALUResult)
 			
 			elif cu["ResultSrc"] == "13": #load
-				# if k["A3"] == "00010":
-					# registers[k["A3"]] = - registers[k["A3"]] + int(ALUResult) + 380#x2 is stack pointer register
 				if k["A3"] == "00000":
-						registers[k["A3"]] = 0
+					registers[k["A3"]] = 0
 				else:
 					registers[k["A3"]] = ReadValue
-			
-			elif cu["ResultSrc"] == "10":
+
+			elif cu["ResultSrc"] == "10": #jal and jalr
 				if k["A3"] == "00000":
-						registers[k["A3"]] = 0
+					registers[k["A3"]] = 0
 				else:
 					registers[k["A3"]] = pc + 4
 			
-			elif cu["ResultSrc"] == "11":
+			elif cu["ResultSrc"] == "11": #jalr
 				if k["A3"] == "00000":
-						registers[k["A3"]] = 0
+					registers[k["A3"]] = 0
 				else:
 					registers[k["A3"]] = pc + 4
 
+		if PCNext(cu["PCSrc"], registers[k["A1"]], k["op"]) == False:
+			break
 		
-		PCNext(cu["PCSrc"], registers[k["A1"]], k["op"])
 		register_value=list(registers.values())
 		for i in range(len(register_value)):
 			register_value[i]=int_to_binary(register_value[i],32)
 		binary_pc=int_to_binary(pc,32)
 		register_after_inst.append([binary_pc,register_value])
-	except Exception as e:
-		print(f"Error procesing in final instruction {e}")
-	pc_values.append(pc)
-	pc=0
+		pc_values.append(pc)
 	
+	#---------------------------------------------------------------------------
+	zero = False
+	RD1, RD2, RegWrite, MemWrite, immExt = 0, 0, 0, 0, "" #reinitialises every variable
+	k = Instruction_Memory(dict_instructions[pc])
+	if (k["op"] == "1100011"): #b-type condition checking
+		if (k["func3"] == "000"):
+			if (registers[k["A1"]] == registers[k["A2"]]):
+				zero = True
+			else:
+				zero = False
+		elif (k["func3"] == "001"):
+			if (registers[k["A1"]] != registers[k["A2"]]):
+				zero = True
+			else:
+				zero = False
+		elif (k["func3"] == "100"):
+			if (registers[k["A1"]] < registers[k["A2"]]):
+				zero = True
+			else:
+				zero = False
+	cu = control_unit(k["op"], k["func3"], k["func7"])
+	register_file(k["A1"], k["A2"], k["A3"], ReadValue, RegWrite)
+	extend(k["Extend"], cu["ImmSrc"])
+
+	ALU(RD1, 0, cu["ALUControl"], cu["ALUSrc"]) #SrcB is set to 0 but the value is decided in the function
+	
+	if (k["op"] == "0000011" or k["op"] == "0100011"):
+		data_memory(int(immExt, 2)//4, registers[k["A1"]], registers[k["A2"]], k["op"], cu["MemWrite"], file) == "stop"
+
+	if (cu["RegWrite"] == "1"):
+		if (cu["ResultSrc"] == "01"):
+			if k["A3"] == "00000":
+					registers[k["A3"]] = 0
+			else:
+				registers[k["A3"]] = signed(immExt)
+		
+		if (cu["ResultSrc"] == "12"):
+			if k["A3"] == "00000":
+					registers[k["A3"]] = 0
+			else:
+				registers[k["A3"]] = signed(immExt) + registers[k["A1"]]
+
+		elif cu["ResultSrc"] == "00":
+			if k["A3"] == "00000":
+					registers[k["A3"]] = 0
+			else:
+				registers[k["A3"]] = int(ALUResult)
+		
+		elif cu["ResultSrc"] == "13": #load
+			if k["A3"] == "00000":
+					registers[k["A3"]] = 0
+			else:
+				registers[k["A3"]] = ReadValue
+		
+		elif cu["ResultSrc"] == "10":
+			if k["A3"] == "00000":
+					registers[k["A3"]] = 0
+			else:
+				registers[k["A3"]] = pc + 4
+		
+		elif cu["ResultSrc"] == "11":
+			if k["A3"] == "00000":
+					registers[k["A3"]] = 0
+			else:
+				registers[k["A3"]] = pc + 4
+
+	PCNext(cu["PCSrc"], registers[k["A1"]], k["op"])
+	#---------------------------------------------------------------------------
+
+	register_value=list(registers.values())
+	for i in range(len(register_value)):
+		register_value[i]=int_to_binary(register_value[i],32)
+	binary_pc=int_to_binary(pc,32)
+	register_after_inst.append([binary_pc,register_value])
+	pc_values.append(pc)
 
 #---------------------------------------------SEPARATING FILE HANDLING FROM MAIN PROGRAM---------------------------------------------
 hexa={0:"0",1:"1",2:"2",3:"3",4:"4",5:"5",6:"6",7:"7",8:"8",9:"9",10:"A",11:"B",12:"C",13:"D",14:"E",15:"F",}
@@ -531,7 +437,7 @@ def in_and_out(file,loc):
 	for i in range(len(input_data)):
 		input_data[i]=input_data[i].strip()
 	new_mem = []
-	execute(input_data)
+	execute(input_data, file)
 
 	new_mem = (list(Data_memory.values()))[128:256]
 	f.close()
